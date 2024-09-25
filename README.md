@@ -7,9 +7,3 @@ Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzar
 - **Porcelli Nicola**
 - **Saccone Matteo**
 - **Saggiomo Luca**
-
-## Struttura del progetto
-- **app/**: Contiene i moduli principali dell'applicazione (GUI, elaborazione dati, comunicazione con la board).
-- **tests/**: Contiene i test automatici per verificare il corretto funzionamento dell'applicazione.
-- **docs/**: Documentazione tecnica aggiuntiva.
-- **data/**: Dati di esempio per testare l'applicazione.
