@@ -3,9 +3,9 @@
 Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzare i dati ricevuti da una board elettronica collegata a un misuratore di impedenza. L'obiettivo è monitorare i livelli di insulina iniettata in pazienti diabetici.
 
 ## Collaboratori
-Ponticelli Lorenzo__
-Porcelli Nicola__
-Saccone Matteo__
+Ponticelli Lorenzo <br />
+Porcelli Nicola <br />
+Saccone Matteo <br />
 Saggiomo Luca
 
 ## Struttura del progetto
