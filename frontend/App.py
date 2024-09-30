@@ -14,6 +14,8 @@ class App(tk.Tk):
 
         # Non permettere il resize
         # self.resizable(0, 0)
+        
+        
 
 if __name__ == "__main__":
     app = App()
