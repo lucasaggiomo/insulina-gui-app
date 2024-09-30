@@ -17,10 +17,12 @@ class App(tk.Tk):
         
         
 
-        self.create_widgets();
+        self.create_widgets()
 
+    # Funzione per la creazione dei frame
     def create_parameters_frame(self):
-        parameters_frame = tk.LabelFrame(self, text="Parameters", bg="red")
+        
+        parameters_frame = tk.LabelFrame(self, text="Parameters", bg="red") # creo un oggetto frame con etichetta Parameters
         parameters_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
         parameters_frame.grid_propagate(False)
         parameters_frame.columnconfigure(0, weight=0)
