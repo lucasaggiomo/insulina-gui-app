@@ -40,32 +40,32 @@ class App(tk.Tk):
        
         frequency_start_label = tk.Label(parameters_frame, text="Start F", anchor="e", height=2, width=10, bg="red")
         frequency_start_label.grid(column=1, row=0, sticky="nesw")
-        self.start_frequency = tk.StringVar()
+        self.start_frequency = tk.DoubleVar()
         frequency_start_entry = tk.Entry(parameters_frame, textvariable=self.start_frequency, width=20)
         frequency_start_entry.grid(column=2, row=0, sticky="ew")
 
         frequency_stop_label = tk.Label(parameters_frame, text="Stop F", anchor="e", height=2, width=10, bg="red")
         frequency_stop_label.grid(column=3, row=0, sticky="nsw")
-        self.stop_frequency = tk.StringVar()
+        self.stop_frequency = tk.DoubleVar()
         frequency_stop_entry = tk.Entry(parameters_frame, textvariable=self.stop_frequency, width=20)
         frequency_stop_entry.grid(column=4, row=0, sticky="w")
 
         frequency_points_label = tk.Label(parameters_frame, text="Points", anchor="e", height=2, width=10, bg="red")
         frequency_points_label.grid(column=5, row=0, sticky="nsw")
-        self.points = tk.StringVar()
+        self.points = tk.DoubleVar()
         frequency_points_entry = tk.Entry(parameters_frame, textvariable=self.points, width=20)
         frequency_points_entry.grid(column=6, row=0, sticky="w")
         
         voltage_label = tk.Label(parameters_frame, text="Voltage", anchor="e", height=2, width=10, bg="red")
-        voltage_label.grid(column=0, row=1, sticky="nsw")
+        voltage_label.grid(column=0, row=1, sticky="nesw")
         self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
-        voltage_value_entry = tk.Entry(parameters_frame, textvariable=self.voltage_value, bg="white", width=20)
-        voltage_value_entry.grid(column=2, row=1)
+        voltage_value_entry = tk.Entry(parameters_frame, textvariable=self.voltage_value, width=20)
+        voltage_value_entry.grid(column=2, row=1, sticky="ew")
         
         return parameters_frame
 
     def create_dati_tab(self, tab_control):
-        acquisizione_dati_frame = tk.Frame(tab_control, bg="yellow")
+        acquisizione_dati_frame = tk.Frame(tab_control)
         
         acquisizione_dati_frame.grid_propagate(False)
 
@@ -96,7 +96,7 @@ class App(tk.Tk):
         return acquisizione_dati_frame
     
     def create_macchina_tab(self, tab_control):
-        stato_macchina_frame = tk.Frame(tab_control, bg="yellow")
+        stato_macchina_frame = tk.Frame(tab_control)
         
         stato_macchina_frame.grid_propagate(False)
 
@@ -108,11 +108,11 @@ class App(tk.Tk):
         # definisco le righe
         stato_macchina_frame.rowconfigure(0, weight=2)
 
-        dati_macchina = tk.Frame(stato_macchina_frame, bg="blue")
-        dati_macchina.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
+        dati_macchina_frame = tk.Frame(stato_macchina_frame, bg="blue")
+        dati_macchina_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
 
-        logger_macchina = tk.Frame(stato_macchina_frame, bg="green")
-        logger_macchina.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
+        logger_macchina_frame = tk.Frame(stato_macchina_frame, bg="green")
+        logger_macchina_frame.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
 
         errori_frame = tk.Frame(stato_macchina_frame, bg="purple")
         errori_frame.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
@@ -120,7 +120,7 @@ class App(tk.Tk):
         return stato_macchina_frame
     
     def create_file_tab(self, tab_control):
-        file_frame = tk.Frame(tab_control, bg="yellow")
+        file_frame = tk.Frame(tab_control)
         
         file_frame.grid_propagate(False)
 
@@ -132,11 +132,11 @@ class App(tk.Tk):
         file_frame.rowconfigure(0, weight=2)
         file_frame.rowconfigure(1, weight=2)
 
-        export_excel = tk.Frame(file_frame, bg="blue")
-        export_excel.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
+        export_excel_frame = tk.Frame(file_frame, bg="blue")
+        export_excel_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
 
-        export_pdf = tk.Frame(file_frame, bg="green")
-        export_pdf.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
+        export_pdf_frame = tk.Frame(file_frame, bg="green")
+        export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
 
        
         return file_frame
