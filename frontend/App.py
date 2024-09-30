@@ -94,6 +94,31 @@ class App(tk.Tk):
         progress_bar_frame.grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
         
         return acquisizione_dati_frame
+    
+    def create_macchina_tab(self, tab_control):
+        stato_macchina_frame = tk.Frame(tab_control, bg="yellow")
+        
+        stato_macchina_frame.grid_propagate(False)
+
+        # definisco le colonne
+        stato_macchina_frame.columnconfigure(0, weight=1)
+        stato_macchina_frame.columnconfigure(1, weight=1)
+        stato_macchina_frame.columnconfigure(2, weight=1)
+
+        # definisco le righe
+        stato_macchina_frame.rowconfigure(0, weight=2)
+
+        dati_macchina = tk.Frame(stato_macchina_frame, bg="blue")
+        dati_macchina.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
+
+        logger_macchina = tk.Frame(stato_macchina_frame, bg="green")
+        logger_macchina.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
+
+        errori_frame = tk.Frame(stato_macchina_frame, bg="purple")
+        errori_frame.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
+        
+        return stato_macchina_frame
+
 
     def create_widgets(self):
         self.grid_propagate(False)
@@ -112,7 +137,7 @@ class App(tk.Tk):
         tab_control = ttk.Notebook(self)
         tab_control.grid(column=0, row=1, sticky="nesw")
         dati_tab = self.create_dati_tab(tab_control)
-        macchina_tab = tk.Frame(tab_control, bg="blue")
+        macchina_tab = self.create_macchina_tab(tab_control)
         esporta_tab = tk.Frame(tab_control, bg="yellow")
         
         tab_control.add(dati_tab, text="Acquisizione dati")
