@@ -141,31 +141,54 @@ class App(tk.Tk):
        
         return file_frame
 
-
     def create_widgets(self):
         self.grid_propagate(False)
         
         # definisco le colonne della finestra globale
         self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(3, weight=1)
         
         # definisco le righe della finestra globale
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=10)
+
+        tab_control = tk.Frame(self, bg="yellow")
+        tab_control.grid(column=0, row=1, columnspan=4, sticky="nesw")
+
+        tab_control.grid_propagate(False)
+        
+        tab_control.rowconfigure(0, weight=1)
+        tab_control.columnconfigure(0, weight=1)
+
+        dati_tab = self.create_dati_tab(tab_control)
+        dati_tab.grid(row=0,column=0, sticky="nsew");
+
+        macchina_tab = self.create_macchina_tab(tab_control)
+        macchina_tab.grid(row=0,column=0, sticky="nsew");
+        
+        esporta_tab = self.create_file_tab(tab_control)
+        esporta_tab.grid(row=0,column=0, sticky="nsew");
+
+        dati_tab.tkraise()
+
+        dati_button = tk.Button(self, text="Acquisizione dati", command=lambda: dati_tab.tkraise())
+        dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
+
+        macchina_button = tk.Button(self, text="Stato macchina", command=lambda: macchina_tab.tkraise())
+        macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
+        
+        esporta_button = tk.Button(self, text="Caricamento a file", command=lambda: esporta_tab.tkraise())
+        esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         # frame bluetooth + batteria (stato della board)
         status_frame = tk.Frame(self, bg="darkgreen")
-        status_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
+        status_frame.grid(column=3, row=0, padx=5, pady=5, sticky="nsew")
         
-        tab_control = ttk.Notebook(self)
-        tab_control.grid(column=0, row=1, sticky="nesw")
-        dati_tab = self.create_dati_tab(tab_control)
-        macchina_tab = self.create_macchina_tab(tab_control)
-        esporta_tab = self.create_file_tab(tab_control)
-        
-        
-        tab_control.add(dati_tab, text="Acquisizione dati")
-        tab_control.add(macchina_tab, text="Stato macchina")
-        tab_control.add(esporta_tab, text="Caricamento file")
+        # tab_control.add(dati_tab, text="Acquisizione dati")
+        # tab_control.add(macchina_tab, text="Stato macchina")
+        # tab_control.add(esporta_tab, text="Caricamento file")
 
     
     
