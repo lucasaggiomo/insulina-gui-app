@@ -12,5 +12,5 @@ Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzar
 Sulla repo di GitHub sono presenti due branch:
 - **main**
 - **features**
-
+Prima di eseguire qualsiasi modifica si lavora sul branch 'features' e dopo, a lavoro ultimato, sul 'main'.
 
