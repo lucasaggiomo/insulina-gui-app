@@ -118,6 +118,28 @@ class App(tk.Tk):
         errori_frame.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         return stato_macchina_frame
+    
+    def create_file_tab(self, tab_control):
+        file_frame = tk.Frame(tab_control, bg="yellow")
+        
+        file_frame.grid_propagate(False)
+
+        # definisco le colonne
+        file_frame.columnconfigure(0, weight=1)
+        
+
+        # definisco le righe
+        file_frame.rowconfigure(0, weight=2)
+        file_frame.rowconfigure(1, weight=2)
+
+        export_excel = tk.Frame(file_frame, bg="blue")
+        export_excel.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
+
+        export_pdf = tk.Frame(file_frame, bg="green")
+        export_pdf.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
+
+       
+        return file_frame
 
 
     def create_widgets(self):
@@ -138,7 +160,8 @@ class App(tk.Tk):
         tab_control.grid(column=0, row=1, sticky="nesw")
         dati_tab = self.create_dati_tab(tab_control)
         macchina_tab = self.create_macchina_tab(tab_control)
-        esporta_tab = tk.Frame(tab_control, bg="yellow")
+        esporta_tab = self.create_file_tab(tab_control)
+        
         
         tab_control.add(dati_tab, text="Acquisizione dati")
         tab_control.add(macchina_tab, text="Stato macchina")
