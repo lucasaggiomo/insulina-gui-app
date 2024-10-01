@@ -12,5 +12,3 @@ Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzar
 Sulla repo di GitHub sono presenti due branch:
 - **main**
 - **features**
-
-
