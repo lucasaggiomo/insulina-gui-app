@@ -173,13 +173,13 @@ class App(tk.Tk):
 
         dati_tab.tkraise()
 
-        dati_button = tk.Button(self, text="Acquisizione dati", command=lambda: dati_tab.tkraise())
+        dati_button = tk.Button(self, text="Acquisizione dati", command=dati_tab.tkraise)
         dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
-        macchina_button = tk.Button(self, text="Stato macchina", command=lambda: macchina_tab.tkraise())
+        macchina_button = tk.Button(self, text="Stato macchina", command=macchina_tab.tkraise)
         macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
-        esporta_button = tk.Button(self, text="Caricamento a file", command=lambda: esporta_tab.tkraise())
+        esporta_button = tk.Button(self, text="Caricamento a file", command=esporta_tab.tkraise)
         esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         # frame bluetooth + batteria (stato della board)
