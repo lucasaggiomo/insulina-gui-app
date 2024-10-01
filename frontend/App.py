@@ -15,7 +15,8 @@ class App(tk.Tk):
         super().__init__()
 
         # Size iniziale della finestra
-        self.geometry("800x500")
+        self.geometry("1100x600")
+        self.minsize(width=900, height=400)
 
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -48,26 +49,26 @@ class App(tk.Tk):
         frequency_start_label = tk.Label(parameters_frame, text="Start F", anchor="e", height=2, width=10, bg="red")
         frequency_start_label.grid(column=1, row=0, sticky="nesw")
         self.start_frequency = tk.DoubleVar()
-        frequency_start_entry = tk.Entry(parameters_frame, textvariable=self.start_frequency, width=20)
-        frequency_start_entry.grid(column=2, row=0, sticky="ew")
+        frequency_start_entry = tk.Entry(parameters_frame, textvariable=self.start_frequency, width=15)
+        frequency_start_entry.grid(column=2, row=0, sticky="w")
 
         frequency_stop_label = tk.Label(parameters_frame, text="Stop F", anchor="e", height=2, width=10, bg="red")
-        frequency_stop_label.grid(column=3, row=0, sticky="nsw")
+        frequency_stop_label.grid(column=3, row=0, sticky="nesw")
         self.stop_frequency = tk.DoubleVar()
-        frequency_stop_entry = tk.Entry(parameters_frame, textvariable=self.stop_frequency, width=20)
+        frequency_stop_entry = tk.Entry(parameters_frame, textvariable=self.stop_frequency, width=15)
         frequency_stop_entry.grid(column=4, row=0, sticky="w")
 
         frequency_points_label = tk.Label(parameters_frame, text="Points", anchor="e", height=2, width=10, bg="red")
-        frequency_points_label.grid(column=5, row=0, sticky="nsw")
+        frequency_points_label.grid(column=5, row=0, sticky="nesw")
         self.points = tk.DoubleVar()
-        frequency_points_entry = tk.Entry(parameters_frame, textvariable=self.points, width=20)
+        frequency_points_entry = tk.Entry(parameters_frame, textvariable=self.points, width=15)
         frequency_points_entry.grid(column=6, row=0, sticky="w")
         
         voltage_label = tk.Label(parameters_frame, text="Voltage", anchor="e", height=2, width=10, bg="red")
         voltage_label.grid(column=0, row=1, sticky="nesw")
         self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
-        voltage_value_entry = tk.Entry(parameters_frame, textvariable=self.voltage_value, width=20)
-        voltage_value_entry.grid(column=2, row=1, sticky="ew")
+        voltage_value_entry = tk.Entry(parameters_frame, textvariable=self.voltage_value, width=15)
+        voltage_value_entry.grid(column=2, row=1, sticky="w")
         
         return parameters_frame
 
@@ -78,7 +79,7 @@ class App(tk.Tk):
 
         # definisco le colonne
         acquisizione_dati_frame.columnconfigure(0, weight=1)
-        acquisizione_dati_frame.columnconfigure(1, weight=1)
+        acquisizione_dati_frame.columnconfigure(1, weight=5)
 
         # definisco le righe
         acquisizione_dati_frame.rowconfigure(0, weight=2)
