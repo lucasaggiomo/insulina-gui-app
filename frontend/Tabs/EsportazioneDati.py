@@ -15,21 +15,29 @@ class EsportazioneDati(tk.Frame):
     def __init__(self, parent_frame): 
         super().__init__(parent_frame)
         
+        self.create_images()
         self.create_widgets()
     
+    # Funzoine per creare le immagini
+    def create_images(self):
+        self.excel_image = tk.PhotoImage(file='Images/Excel_logo_2k.png').subsample(30,30)
+        self.pdf_image = tk.PhotoImage(file='Images/Pdf_logo_white.png').subsample(30,30)
+        
     # Definisco la funzione per creare i widgets nel Frame
     def create_widgets(self):
-        self.grid_propagate(False)
+        self.grid_propagate(True)
 
         # definisco le colonne
-        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=0)
+        self.columnconfigure(1, weight=1)
         
         # definisco le righe
-        self.rowconfigure(0, weight=2)
-        self.rowconfigure(1, weight=2)
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(1, weight=0)
+        self.rowconfigure(2, weight=5)
 
-        export_excel_frame = tk.Button(self, text="Esporta dati su Excel")
-        export_excel_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="new")
+        export_excel_frame = ttk.Button(self, text="Esporta dati su Excel", image=self.excel_image, width=100, compound="left")
+        export_excel_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nswe")
 
-        export_pdf_frame = tk.Button(self, text="Esporta dati su Pdf")
-        export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="new")
+        export_pdf_frame = ttk.Button(self, text="Esporta dati su Pdf", image=self.pdf_image, width=100, compound="left")
+        export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nswe")
