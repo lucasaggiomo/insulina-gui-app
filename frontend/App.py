@@ -46,41 +46,36 @@ class App(tk.Tk):
         self.bluetooth_image = tk.PhotoImage(file='Images/Bluetooth.png').subsample(40,40)
         
     def create_styles(self):
+        # Definisco delle variabili comuni a tutti gli stili
+        custom_font = ("Helvertica", 15, "bold")
+        foreground_color = "darkblue"
+
         # Creazione di uno stile personalizzato
         style = ttk.Style()
         
-        # Definisci uno stile personalizzato per i bottoni
+        # Definisco uno stile personalizzato per i bottoni
         # Nota: il nome dello stile deve terminare con TButton
         style.configure("Custom.TButton",                   # nome
-                        font=("Helvertica", 15, "bold"),    # font
-                        foreground="darkblue",              # colore testo
+                        font=custom_font,                   # font
+                        foreground=foreground_color,        # colore testo
                         padding=10
+                        )
+        
+        style.configure("Custom.TLabel",                    # nome
+                        font=custom_font,                   # font
+                        foreground=foreground_color,        # colore testo
+                        padding=(0,0,10,0)
                         )
         
     # Funzione per creare tutti i widgets della finestra
     def create_widgets(self):
-        # self.grid_propagate(False)
-        
-        # # definisco le colonne della finestra globale
-        # self.columnconfigure(0, weight=1)
-        
-        # # definisco le righe della finestra globale
-        # self.rowconfigure(0, weight=1)
-        # self.rowconfigure(1, weight=10)
-
         # frame della barra superiore del programma (bottoni per cambiare la schermata e informazioni sulla board)
         top_bar_frame = self.create_top_bar_frame()
         top_bar_frame.pack(side="top", fill="both")
-        # top_bar_frame.grid(column=0, row=0, sticky="nesw")
 
         # frame contenente il tab corrente (AcquisizioneDati, StatoMacchina o EsportazioneDati)
         tab_manager = self.create_tab_manager_frame()
         tab_manager.pack(side="bottom", fill="both", expand=True)
-        # tab_manager.grid(column=0, row=1, sticky="nesw")
-        
-        # tab_control.add(dati_tab, text="Acquisizione dati")
-        # tab_control.add(macchina_tab, text="Stato macchina")
-        # tab_control.add(esporta_tab, text="Esporta dati")
 
 
     # Crea la barra superiore del programma, contenente:
@@ -161,10 +156,12 @@ class App(tk.Tk):
                                       command=self.bluetooth_button_clicked)
         bluetooth_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
-        self.battery_percentage_string = tk.StringVar()
+        self.battery_percentage_string = tk.StringVar(value="100 %")
         self.battery_percentage_value = 100.0
         # chiama un'ipotetica funzione che legge la percentuale di batteria
         self.battery_label = ttk.Label(status_frame,
+                                       style="Custom.TLabel",
+                                       compound="left",
                                        textvariable=self.battery_percentage_string)
         self.update_battery_percentage()
         self.battery_label.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
@@ -202,7 +199,7 @@ class App(tk.Tk):
     def update_battery_percentage(self):
         newPercentage = self.read_board_battery_percentage()
         self.battery_percentage_value = newPercentage
-        self.battery_percentage_string = f"{newPercentage} %"
+        self.battery_percentage_string.set(f"{newPercentage} %")
         
         self.battery_label.configure(image = self.get_battery_image(newPercentage))
         
