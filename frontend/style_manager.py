@@ -15,6 +15,7 @@ class StyleManager:
     # Definisco delle costanti per i nomi degli stili
     # (in modo da semplificare la modifica, senza dover modificare il nome dappertutto)
     CUSTOM_BUTTON_STYLE_NAME = "Custom.TButton"
+    CUSTOM_LABELBUTTON_STYLE_NAME = "Custom2.TLabel"
     CUSTOM_LABEL_STYLE_NAME = "Custom.TLabel"
     
     @staticmethod
@@ -33,3 +34,17 @@ class StyleManager:
                         foreground=StyleManager.foreground_color,   # colore testo
                         padding=(0,0,10,0)
                         )
+
+        # Definisco uno stile per la label che appare come un bottone
+        style.configure(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,
+                        relief="raised",  # Effetto di contorno "bottone"
+                        borderwidth=2,     # Spessore del contorno
+                        padding=(10, 5),   # Padding interno
+                        background="white", # Colore di sfondo
+                        foreground="darkblue", # Colore del testo
+                        font=("Helvetica", 12, "bold")) # Font della label
+        
+        # Opzionale: Stile attivo se desideri un effetto al passaggio del mouse
+        style.map(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,
+                  background=[("active", "#e0eef9")],  # Colore di sfondo attivo
+                  foreground=[("active", "blue")])     # Colore del testo attivo

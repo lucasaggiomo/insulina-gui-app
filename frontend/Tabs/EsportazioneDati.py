@@ -34,7 +34,7 @@ class EsportazioneDati(tk.Frame):
         # self.rowconfigure(2, weight=5)
 
         export_excel_frame = ttk.Button(self,
-                                        style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                        style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                         text="Esporta dati su Excel",
                                         image=ImageManager.excel_image,
                                         compound="left",                         # mostra l'immagine alla sinistra del testo
@@ -44,7 +44,7 @@ class EsportazioneDati(tk.Frame):
         export_excel_frame.pack(fill="both")
 
         export_pdf_frame = ttk.Button(self,
-                                      style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                      style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                       text="Esporta dati su Pdf",
                                       image=ImageManager.pdf_image,
                                       compound="left",                          # mostra l'immagine alla sinistra del testo

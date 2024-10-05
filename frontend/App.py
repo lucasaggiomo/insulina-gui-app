@@ -83,7 +83,7 @@ class App(tk.Tk):
                                       text="Acquisizione dati",
                                       width=20,
                                       padding=10,
-                                      style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                      style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                       command=self.show_dati_button_clicked)
         show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
@@ -92,7 +92,7 @@ class App(tk.Tk):
                                           text="Stato macchina",
                                           width=20,
                                           padding=10,
-                                          style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                          style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                           command=self.show_macchina_button_clicked)
         show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
         
@@ -101,7 +101,7 @@ class App(tk.Tk):
                                          text="Esporta dati",
                                          width=20,
                                          padding=10,
-                                         style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                         style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                          command=self.show_esporta_button_clicked)
         show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
 
@@ -121,6 +121,7 @@ class App(tk.Tk):
         status_frame.columnconfigure(1, weight=0)
         
         bluetooth_button = ttk.Button(status_frame,
+                                      width=10,
                                       image=ImageManager.bluetooth_image,
                                       compound="right",
                                       command=self.bluetooth_button_clicked)
