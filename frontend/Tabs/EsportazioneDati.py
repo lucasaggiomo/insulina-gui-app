@@ -8,6 +8,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from image_manager import ImageManager
+
 # Definisco la classe EsportazioneDati, che eredita da tk.Frame
 class EsportazioneDati(tk.Frame):
     
@@ -15,17 +17,11 @@ class EsportazioneDati(tk.Frame):
     def __init__(self, parent_frame): 
         super().__init__(parent_frame)
         
-        self.create_images()
         self.create_widgets()
     
-    # Funzoine per creare le immagini
-    def create_images(self):
-        self.excel_image = tk.PhotoImage(file='Images/Excel_logo_2k.png').subsample(30,30)
-        self.pdf_image = tk.PhotoImage(file='Images/Pdf_logo_white.png').subsample(30,30)
-        
     # Definisco la funzione per creare i widgets nel Frame
     def create_widgets(self):
-        self.grid_propagate(True)
+        # self.grid_propagate(True)
 
         # # definisco le colonne
         # self.columnconfigure(0, weight=0)
@@ -39,7 +35,7 @@ class EsportazioneDati(tk.Frame):
         export_excel_frame = ttk.Button(self,
                                         style="Custom.TButton",
                                         text="Esporta dati su Excel",
-                                        image=self.excel_image,
+                                        image=ImageManager.excel_image,
                                         compound="left",                         # mostra l'immagine alla sinistra del testo
                                         command=self.esporta_dati_excel_clicked) # funzione invocata al click del bottone
                                         
@@ -49,7 +45,7 @@ class EsportazioneDati(tk.Frame):
         export_pdf_frame = ttk.Button(self,
                                       style="Custom.TButton",
                                       text="Esporta dati su Pdf",
-                                      image=self.pdf_image,
+                                      image=ImageManager.pdf_image,
                                       compound="left",                          # mostra l'immagine alla sinistra del testo
                                       command=self.esporta_dati_pdf_clicked)    # funzione invocata al click del bottone
         # export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nswe")

@@ -8,6 +8,8 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+
+from image_manager import ImageManager
         
 # Definisco la classe AcquisizioneDati, che eredita da tk.Frame
 class AcquisizioneDati(tk.Frame):
@@ -16,13 +18,7 @@ class AcquisizioneDati(tk.Frame):
     def __init__(self, parent_frame): 
         super().__init__(parent_frame)
         
-        self.create_images()
         self.create_widgets()
-        
-    def create_images(self):
-        self.start_image = tk.PhotoImage(file='Images/Start.png').subsample(30,30)
-        self.stop_image = tk.PhotoImage(file='Images/Stop.png').subsample(30,30)
-        self.trash_image = tk.PhotoImage(file='Images/Garbage.png').subsample(5,5)
     
     def create_widgets(self):
         self.grid_propagate(False)
@@ -64,31 +60,53 @@ class AcquisizioneDati(tk.Frame):
         parameters_frame.rowconfigure(0, weight=1)
         parameters_frame.rowconfigure(1, weight=1)
 
-        frequency_label = ttk.Label(parameters_frame, text="Frequency", anchor="e", width=10)
+        frequency_label = ttk.Label(parameters_frame,
+                                    text="Frequency",
+                                    anchor="e",
+                                    width=10)
         frequency_label.grid(column=0, row=0, sticky="nesw")
        
-        frequency_start_label = ttk.Label(parameters_frame, text="Start F", anchor="e", width=10)
+        frequency_start_label = ttk.Label(parameters_frame,
+                                          text="Start F",
+                                          anchor="e", 
+                                          width=10)
         frequency_start_label.grid(column=1, row=0, sticky="nesw")
         self.start_frequency = tk.DoubleVar()
-        frequency_start_entry = ttk.Entry(parameters_frame, textvariable=self.start_frequency, width=30)
+        frequency_start_entry = ttk.Entry(parameters_frame,
+                                          textvariable=self.start_frequency,
+                                          width=30)
         frequency_start_entry.grid(column=2, row=0, sticky="w")
 
-        frequency_stop_label = ttk.Label(parameters_frame, text="Stop F", anchor="e", width=10)
+        frequency_stop_label = ttk.Label(parameters_frame,
+                                         text="Stop F", anchor="e",
+                                         width=10)
         frequency_stop_label.grid(column=3, row=0, sticky="nesw")
         self.stop_frequency = tk.DoubleVar()
-        frequency_stop_entry = ttk.Entry(parameters_frame, textvariable=self.stop_frequency, width=15)
+        frequency_stop_entry = ttk.Entry(parameters_frame,
+                                         textvariable=self.stop_frequency,
+                                         width=15)
         frequency_stop_entry.grid(column=4, row=0, sticky="w")
 
-        frequency_points_label = ttk.Label(parameters_frame, text="Points", anchor="e", width=10)
+        frequency_points_label = ttk.Label(parameters_frame,
+                                           text="Points",
+                                           anchor="e",
+                                           width=10)
         frequency_points_label.grid(column=5, row=0, sticky="nesw")
         self.points = tk.DoubleVar()
-        frequency_points_entry = ttk.Entry(parameters_frame, textvariable=self.points, width=15)
+        frequency_points_entry = ttk.Entry(parameters_frame,
+                                           textvariable=self.points,
+                                           width=15)
         frequency_points_entry.grid(column=6, row=0, sticky="w")
         
-        voltage_label = ttk.Label(parameters_frame, text="Voltage", anchor="e", width=10)
+        voltage_label = ttk.Label(parameters_frame,
+                                  text="Voltage",
+                                  anchor="e",
+                                  width=10)
         voltage_label.grid(column=0, row=1, sticky="nesw")
         self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
-        voltage_value_entry = ttk.Entry(parameters_frame, textvariable=self.voltage_value, width=15)
+        voltage_value_entry = ttk.Entry(parameters_frame,
+                                        textvariable=self.voltage_value,
+                                        width=15)
         voltage_value_entry.grid(column=2, row=1, sticky="w")
         
         return parameters_frame
@@ -111,16 +129,30 @@ class AcquisizioneDati(tk.Frame):
         
         # Progress Bar
         self.progress_value = tk.DoubleVar()
-        progress_bar_frame = ttk.Progressbar(start_stop_frame, length=100, variable=self.progress_value)
+        progress_bar_frame = ttk.Progressbar(start_stop_frame,
+                                             length=100,
+                                             variable=self.progress_value)
         progress_bar_frame.grid(column=0, row=0, padx=5, pady=5, sticky="w")
         
-        start_button = ttk.Button(start_stop_frame, image=self.start_image, compound="right",width=10, command=self.start_button_clicked)
+        start_button = ttk.Button(start_stop_frame,
+                                  image=ImageManager.start_image,
+                                  compound="right",
+                                  width=10,
+                                  command=self.start_button_clicked)
         start_button.grid(column=1, row=0, padx=5, pady=5, sticky="e")
         
-        stop_button = ttk.Button(start_stop_frame, image=self.stop_image, compound="right", width=10, command=self.stop_button_clicked)
+        stop_button = ttk.Button(start_stop_frame,
+                                 image=ImageManager.stop_image,
+                                 compound="right",
+                                 width=10,
+                                 command=self.stop_button_clicked)
         stop_button.grid(column=2, row=0, padx=5, pady=5, sticky="e")
         
-        trash_button = ttk.Button(start_stop_frame, image=self.trash_image, compound="right", width=10, command=self.trash_button_clicked)
+        trash_button = ttk.Button(start_stop_frame,
+                                  image=ImageManager.trash_image,
+                                  compound="right",
+                                  width=10,
+                                  command=self.trash_button_clicked)
         trash_button.grid(column=3, row=0, padx=5, pady=5, sticky="e")
         
         return start_stop_frame
@@ -129,10 +161,17 @@ class AcquisizioneDati(tk.Frame):
         print("La misurazione è iniziata")
         
     def stop_button_clicked(self):
-        print("La misurazione è stata interrotta")
+        has_to_stop = messagebox.askyesno(title="Interruzione misurazione",
+                                          message="Sei sicuro di voler interrompere la misurazione?")
+        if(has_to_stop):
+            self.stop_measurement()
+            print("La misurazione è stata interrotta")
+        else:
+            print("L'interruzione è stata annullata")
     
     def trash_button_clicked(self):
-        has_to_cancel = messagebox.askyesno(title="Cancellazione dati", message="Sei sicuro di voler cancellare i dati?")
+        has_to_cancel = messagebox.askyesno(title="Cancellazione dati",
+                                            message="Sei sicuro di voler cancellare i dati?")
         if(has_to_cancel):
             self.cancel_data()
             print("Le misurazioni sono state cancellate")
@@ -140,4 +179,7 @@ class AcquisizioneDati(tk.Frame):
             print("La cancellazione è stata annullata")
             
     def cancel_data(self):
-        print("Cancellazione dati...")        
+        print("Cancellazione dati...")
+
+    def stop_measurement(self):
+        print("Interruzione della misurazione...")

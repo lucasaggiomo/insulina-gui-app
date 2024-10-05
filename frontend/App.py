@@ -9,8 +9,9 @@
 import tkinter as tk
 from tkinter import ttk
 
-# Importo altre classe 
+# Importo altre classi
 from tabs import *
+from image_manager import ImageManager
 
 class App(tk.Tk):
 
@@ -19,36 +20,30 @@ class App(tk.Tk):
         super().__init__()
 
         # Size iniziale della finestra
-        self.geometry("1100x900")
-        self.minsize(width=1000, height=600)
+        self.geometry("1100x700")
+        self.minsize(width=1100, height=600)
 
         # Titolo finestra
         self.title("Fondamenti di Misure")
 
-        # Non permettere il resize
-        # self.resizable(0, 0)
-        
-        # Definisco le immagini utilizzate
-        self.create_images()
-        
+        # Carico tutte le immagini dell'applicazione con la classe ImageManager
+        ImageManager.load_images()
+
         # Definisco gli stili utilizzati
-        self.create_styles()
+        App.create_styles()
                 
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
+        
+    # region FUNZIONI STATICHE [#region per dire a VScode di compattare il codice]
+    # Sezione delle funzioni statiche (senza "self" come parametro e con "@staticmethod"), che non accedono alle proprietà dell'oggetto
 
-    def create_images(self):
-        self.battery_low_image = tk.PhotoImage(file='Images/Battery_low.png').subsample(15,15)
-        self.battery_medium_image = tk.PhotoImage(file='Images/Battery_medium.png').subsample(15,15)
-        self.battery_high_image = tk.PhotoImage(file='Images/Battery_high.png').subsample(15,15)
-        self.battery_max_image = tk.PhotoImage(file='Images/Battery_max.png').subsample(15,15)
-        
-        self.bluetooth_image = tk.PhotoImage(file='Images/Bluetooth.png').subsample(40,40)
-        
-    def create_styles(self):
+    # Crea gli stili dell'applicazione
+    @staticmethod
+    def create_styles():
         # Definisco delle variabili comuni a tutti gli stili
-        custom_font = ("Helvertica", 15, "bold")
-        foreground_color = "darkblue"
+        App.custom_font = ("Helvertica", 15, "bold")
+        App.foreground_color = "darkblue"
 
         # Creazione di uno stile personalizzato
         style = ttk.Style()
@@ -56,17 +51,21 @@ class App(tk.Tk):
         # Definisco uno stile personalizzato per i bottoni
         # Nota: il nome dello stile deve terminare con TButton
         style.configure("Custom.TButton",                   # nome
-                        font=custom_font,                   # font
-                        foreground=foreground_color,        # colore testo
+                        font=App.custom_font,                   # font
+                        foreground=App.foreground_color,        # colore testo
                         padding=10
                         )
         
         style.configure("Custom.TLabel",                    # nome
-                        font=custom_font,                   # font
-                        foreground=foreground_color,        # colore testo
+                        font=App.custom_font,                   # font
+                        foreground=App.foreground_color,        # colore testo
                         padding=(0,0,10,0)
                         )
         
+    #endregion
+
+    # region FUNZIONI DI ISTANZA (non statiche) [#region per dire a VScode di compattare il codice]
+
     # Funzione per creare tutti i widgets della finestra
     def create_widgets(self):
         # frame della barra superiore del programma (bottoni per cambiare la schermata e informazioni sulla board)
@@ -151,7 +150,7 @@ class App(tk.Tk):
         status_frame.columnconfigure(1, weight=0)
         
         bluetooth_button = ttk.Button(status_frame,
-                                      image=self.bluetooth_image,
+                                      image=ImageManager.bluetooth_image,
                                       compound="right",
                                       command=self.bluetooth_button_clicked)
         bluetooth_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
@@ -201,17 +200,7 @@ class App(tk.Tk):
         self.battery_percentage_value = newPercentage
         self.battery_percentage_string.set(f"{newPercentage} %")
         
-        self.battery_label.configure(image = self.get_battery_image(newPercentage))
-        
-    def get_battery_image(self, percentage):
-        if percentage < 25.0:
-            return self.battery_low_image
-        elif 25.0 <= percentage < 50:
-            return self.battery_medium_image
-        elif 50.0 <= percentage < 75:
-            return self.battery_high_image
-        else:
-            return self.battery_max_image
+        self.battery_label.configure(image = ImageManager.get_battery_image(newPercentage))
             
     # Questo metodo legge la percentuale di batteria della board
     def read_board_battery_percentage(self):
@@ -233,6 +222,7 @@ class App(tk.Tk):
     def bluetooth_button_clicked(self):
         print("Bottone bluetooth clickato")
         
+    #endregion
         
 if __name__ == "__main__":
     app = App() # invoco il costruttore
