@@ -27,17 +27,38 @@ class EsportazioneDati(tk.Frame):
     def create_widgets(self):
         self.grid_propagate(True)
 
-        # definisco le colonne
-        self.columnconfigure(0, weight=0)
-        self.columnconfigure(1, weight=1)
+        # # definisco le colonne
+        # self.columnconfigure(0, weight=0)
+        # self.columnconfigure(1, weight=1)
         
-        # definisco le righe
-        self.rowconfigure(0, weight=0)
-        self.rowconfigure(1, weight=0)
-        self.rowconfigure(2, weight=5)
+        # # definisco le righe
+        # self.rowconfigure(0, weight=0)
+        # self.rowconfigure(1, weight=0)
+        # self.rowconfigure(2, weight=5)
 
-        export_excel_frame = ttk.Button(self, text="Esporta dati su Excel", image=self.excel_image, width=100, compound="left")
-        export_excel_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nswe")
+        export_excel_frame = ttk.Button(self,
+                                        style="Custom.TButton",
+                                        text="Esporta dati su Excel",
+                                        image=self.excel_image,
+                                        compound="left",                         # mostra l'immagine alla sinistra del testo
+                                        command=self.esporta_dati_excel_clicked) # funzione invocata al click del bottone
+                                        
+        # export_excel_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nswe")
+        export_excel_frame.pack(fill="both")
 
-        export_pdf_frame = ttk.Button(self, text="Esporta dati su Pdf", image=self.pdf_image, width=100, compound="left")
-        export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nswe")
+        export_pdf_frame = ttk.Button(self,
+                                      style="Custom.TButton",
+                                      text="Esporta dati su Pdf",
+                                      image=self.pdf_image,
+                                      compound="left",                          # mostra l'immagine alla sinistra del testo
+                                      command=self.esporta_dati_pdf_clicked)    # funzione invocata al click del bottone
+        # export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nswe")
+        export_pdf_frame.pack(fill="both")
+
+    # EVENTI BOTTONI
+    def esporta_dati_excel_clicked(self):
+        print("Esportazione dati su excel in corso...")
+
+    def esporta_dati_pdf_clicked(self):
+        print("Esportazione dati su pdf in corso...")
+    
