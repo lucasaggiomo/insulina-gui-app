@@ -11,7 +11,8 @@ from tkinter import ttk
 
 # Importo altre classi
 from tabs import *
-from image_manager import ImageManager
+from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
+from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 
 class App(tk.Tk):
 
@@ -29,42 +30,12 @@ class App(tk.Tk):
         # Carico tutte le immagini dell'applicazione con la classe ImageManager
         ImageManager.load_images()
 
-        # Definisco gli stili utilizzati
-        App.create_styles()
+        # Carico tutti gli stili dell'applicazione con la classe StyleManager
+        StyleManager.load_styles()
                 
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
-        
-    # region FUNZIONI STATICHE [#region per dire a VScode di compattare il codice]
-    # Sezione delle funzioni statiche (senza "self" come parametro e con "@staticmethod"), che non accedono alle proprietà dell'oggetto
 
-    # Crea gli stili dell'applicazione
-    @staticmethod
-    def create_styles():
-        # Definisco delle variabili comuni a tutti gli stili
-        App.custom_font = ("Helvertica", 15, "bold")
-        App.foreground_color = "darkblue"
-
-        # Creazione di uno stile personalizzato
-        style = ttk.Style()
-        
-        # Definisco uno stile personalizzato per i bottoni
-        # Nota: il nome dello stile deve terminare con TButton
-        style.configure("Custom.TButton",                   # nome
-                        font=App.custom_font,                   # font
-                        foreground=App.foreground_color,        # colore testo
-                        padding=10
-                        )
-        
-        style.configure("Custom.TLabel",                    # nome
-                        font=App.custom_font,                   # font
-                        foreground=App.foreground_color,        # colore testo
-                        padding=(0,0,10,0)
-                        )
-        
-    #endregion
-
-    # region FUNZIONI DI ISTANZA (non statiche) [#region per dire a VScode di compattare il codice]
 
     # Funzione per creare tutti i widgets della finestra
     def create_widgets(self):
@@ -221,9 +192,7 @@ class App(tk.Tk):
         
     def bluetooth_button_clicked(self):
         print("Bottone bluetooth clickato")
-        
-    #endregion
-        
+
 if __name__ == "__main__":
     app = App() # invoco il costruttore
     app.mainloop() # funzione per eseguire il programma - la possiamo utilizzare in quanto si trova nella classe padre Tk
