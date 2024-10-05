@@ -10,6 +10,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 from image_manager import ImageManager
+from style_manager import StyleManager
         
 # Definisco la classe AcquisizioneDati, che eredita da tk.Frame
 class AcquisizioneDati(tk.Frame):

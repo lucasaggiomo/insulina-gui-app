@@ -1,3 +1,10 @@
+# Progetto GUI misuratore d'insulina - A.A. 2024/2025 Corso di Laboratorio di Misure
+# Autori:
+# Saggiomo Luca
+# Saccone Matteo
+# Ponticelli Lorenzo
+# Porcelli Nicola
+
 import tkinter as tk
 
 class ImageManager:

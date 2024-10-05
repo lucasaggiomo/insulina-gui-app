@@ -23,7 +23,7 @@ class App(tk.Tk):
         # Size iniziale della finestra
         self.geometry("1100x700")
         self.minsize(width=1100, height=600)
-
+        
         # Titolo finestra
         self.title("Fondamenti di Misure")
 
@@ -83,7 +83,7 @@ class App(tk.Tk):
                                       text="Acquisizione dati",
                                       width=20,
                                       padding=10,
-                                      style="Custom.TButton",
+                                      style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
                                       command=self.show_dati_button_clicked)
         show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
@@ -92,7 +92,7 @@ class App(tk.Tk):
                                           text="Stato macchina",
                                           width=20,
                                           padding=10,
-                                          style="Custom.TButton",
+                                          style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
                                           command=self.show_macchina_button_clicked)
         show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
         
@@ -101,7 +101,7 @@ class App(tk.Tk):
                                          text="Esporta dati",
                                          width=20,
                                          padding=10,
-                                         style="Custom.TButton",
+                                         style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
                                          command=self.show_esporta_button_clicked)
         show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
 
@@ -130,7 +130,7 @@ class App(tk.Tk):
         self.battery_percentage_value = 100.0
         # chiama un'ipotetica funzione che legge la percentuale di batteria
         self.battery_label = ttk.Label(status_frame,
-                                       style="Custom.TLabel",
+                                       style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
                                        compound="left",
                                        textvariable=self.battery_percentage_string)
         self.update_battery_percentage()

@@ -8,6 +8,9 @@
 import tkinter as tk
 from tkinter import ttk
 
+from image_manager import ImageManager
+from style_manager import StyleManager
+
 # Definisco la classe StatoMacchina, che eredita da tk.Frame
 class StatoMacchina(tk.Frame):
     
