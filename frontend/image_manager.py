@@ -20,9 +20,9 @@ class ImageManager:
             
         ImageManager.bluetooth_image = tk.PhotoImage(file='Images/Bluetooth.png').subsample(40,40)
 
-        ImageManager.start_image = tk.PhotoImage(file='Images/Start.png').subsample(30,30)
-        ImageManager.stop_image = tk.PhotoImage(file='Images/Stop.png').subsample(30,30)
-        ImageManager.trash_image = tk.PhotoImage(file='Images/Garbage.png').subsample(5,5)
+        ImageManager.start_image = tk.PhotoImage(file='Images/Start.png').subsample(25,25)
+        ImageManager.stop_image = tk.PhotoImage(file='Images/Stop.png').subsample(35,35)
+        ImageManager.trash_image = tk.PhotoImage(file='Images/Garbage.png').subsample(4,4)
 
         ImageManager.excel_image = tk.PhotoImage(file='Images/Excel_logo_2k.png').subsample(30,30)
         ImageManager.pdf_image = tk.PhotoImage(file='Images/Pdf_logo_white.png').subsample(30,30)

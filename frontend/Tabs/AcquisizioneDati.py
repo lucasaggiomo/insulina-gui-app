@@ -31,7 +31,7 @@ class AcquisizioneDati(tk.Frame):
         # definisco le righe
         self.rowconfigure(0, weight=2)
         self.rowconfigure(1, weight=6)
-        self.rowconfigure(2, weight=1)
+        self.rowconfigure(2, weight=0)
 
         parameters_frame = self.create_parameters_frame()
         parameters_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nsew") # creo il frame dei parametri
@@ -42,14 +42,14 @@ class AcquisizioneDati(tk.Frame):
         graph_frame = tk.Frame(self, bg="green")
         graph_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
 
-        start_stop_frame = self.create_start_stop_frame()
+        start_stop_frame = self.create_bottom_bar_frame()
         start_stop_frame.grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
     
     # Funzione per la creazione dei frame nella grid Parameters
     def create_parameters_frame(self):
         parameters_frame = tk.LabelFrame(self, text="Parameters") # creo un oggetto frame con etichetta Parameters
         
-        #parameters_frame.grid_propagate(True)
+        parameters_frame.grid_propagate(True)
         parameters_frame.columnconfigure(0, weight=1)
         parameters_frame.columnconfigure(1, weight=1)
         parameters_frame.columnconfigure(2, weight=1)
@@ -75,7 +75,7 @@ class AcquisizioneDati(tk.Frame):
         self.start_frequency = tk.DoubleVar()
         frequency_start_entry = ttk.Entry(parameters_frame,
                                           textvariable=self.start_frequency,
-                                          width=30)
+                                          width=15)
         frequency_start_entry.grid(column=2, row=0, sticky="w")
 
         frequency_stop_label = ttk.Label(parameters_frame,
@@ -112,49 +112,67 @@ class AcquisizioneDati(tk.Frame):
         
         return parameters_frame
     
+    # Crea la barra inferiore della schermata AcquisizioneDati, contenente:
+    #   - la progress bar associata alla misurazione (FUNZIONE create_progress_bar_frame)
+    #   - i bottoni di start, stop e cancellazione dati  (FUNZIONE create_start_stop_frame)
+    def create_bottom_bar_frame(self):
+        bottom_bar_frame = ttk.Frame(self, height=50)
+        # bottom_bar_frame.pack_propagate(True)
+
+        # bottoni per cabiare schermata nel tab_manager
+        giovanni = self.create_progress_bar_frame(bottom_bar_frame)
+        giovanni.pack(side="left", fill="both", pady=15, padx=20)        # allinea sulla sinistra
+
+        self.progress_value.set(10)
+        
+        # bottoni di start, stop e cancellazione dati
+        status_frame = self.create_start_stop_frame(bottom_bar_frame)
+        status_frame.pack(side="right", fill="both")   # allinea sulla destra
+
+        return bottom_bar_frame
+
+    def create_progress_bar_frame(self, parent):
+        self.progress_value = tk.DoubleVar()
+        progress_bar_frame = ttk.Progressbar(parent,
+                                             length=200,
+                                             variable=self.progress_value)
+        return progress_bar_frame
+
     # Funzione per la creazione dei frame start stop...
     # NOME DA CAMBIARE EVENTUALMENTE
-    def create_start_stop_frame(self):
-        start_stop_frame = tk.Frame(self)
+    def create_start_stop_frame(self, parent):
+        start_stop_frame = tk.Frame(parent, height=20)
         
-        start_stop_frame.grid_propagate(False)
+        # start_stop_frame.grid_propagate(True)
         
         # Definisco la riga
         start_stop_frame.rowconfigure(0, weight=1)
         
         # Definisco le colonne
-        start_stop_frame.columnconfigure(0, weight=1)
-        start_stop_frame.columnconfigure(1, weight=1)
-        start_stop_frame.columnconfigure(2, weight=1)
-        start_stop_frame.columnconfigure(3, weight=1)
+        start_stop_frame.columnconfigure(0, weight=0, uniform="buttons")
+        start_stop_frame.columnconfigure(1, weight=0, uniform="buttons")
+        start_stop_frame.columnconfigure(2, weight=0, uniform="buttons")
         
-        # Progress Bar
-        self.progress_value = tk.DoubleVar()
-        progress_bar_frame = ttk.Progressbar(start_stop_frame,
-                                             length=100,
-                                             variable=self.progress_value)
-        progress_bar_frame.grid(column=0, row=0, padx=5, pady=5, sticky="w")
-        
+        # Bottone per iniziare la misurazione
         start_button = ttk.Button(start_stop_frame,
+                                  style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                   image=ImageManager.start_image,
-                                  compound="right",
-                                  width=10,
                                   command=self.start_button_clicked)
-        start_button.grid(column=1, row=0, padx=5, pady=5, sticky="e")
+        start_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         
+        # Bottone per terminare la misurazione
         stop_button = ttk.Button(start_stop_frame,
+                                 style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                  image=ImageManager.stop_image,
-                                 compound="right",
-                                 width=10,
                                  command=self.stop_button_clicked)
-        stop_button.grid(column=2, row=0, padx=5, pady=5, sticky="e")
+        stop_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
+        # Bottone per cancellare i dati delle misurazioni precedenti
         trash_button = ttk.Button(start_stop_frame,
+                                  style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
                                   image=ImageManager.trash_image,
-                                  compound="right",
-                                  width=10,
                                   command=self.trash_button_clicked)
-        trash_button.grid(column=3, row=0, padx=5, pady=5, sticky="e")
+        trash_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         return start_stop_frame
     
