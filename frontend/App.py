@@ -152,14 +152,14 @@ class App(tk.Tk):
         tab_manager.columnconfigure(0, weight=1)
 
         self.dati_tab = AcquisizioneDati(tab_manager)
-        self.dati_tab.grid(row=0,column=0, sticky="nsew");
-        self.dati_tab.progress_value = 50;
+        self.dati_tab.grid(row=0,column=0, sticky="nsew")
+        self.dati_tab.progress_value = 50
 
         self.macchina_tab = StatoMacchina(tab_manager)
-        self.macchina_tab.grid(row=0,column=0, sticky="nsew");
+        self.macchina_tab.grid(row=0,column=0, sticky="nsew")
         
         self.esporta_tab = EsportazioneDati(tab_manager)
-        self.esporta_tab.grid(row=0,column=0, sticky="nsew");
+        self.esporta_tab.grid(row=0,column=0, sticky="nsew")
 
         self.dati_tab.tkraise()
         
