@@ -7,6 +7,7 @@ Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzar
 - **Porcelli Nicola**
 - **Saccone Matteo**
 - **Saggiomo Luca**
+- **Romano Davide**
 
 ## Workflow del gruppo
 Sulla repo di GitHub sono presenti due branch:
