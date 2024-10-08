@@ -2,9 +2,9 @@
 # Autori:
 # Saggiomo Luca
 # Saccone Matteo
+# Romano Davide
 # Ponticelli Lorenzo
 # Porcelli Nicola
-# Romano Davide
 
 # Importo la libreria tkinter
 import tkinter as tk
@@ -22,8 +22,8 @@ class App(tk.Tk):
         super().__init__()
 
         # Size iniziale della finestra
-        self.geometry("1100x700")
-        self.minsize(width=1100, height=600)
+        self.geometry("1300x800")
+        self.minsize(width=1200, height=600)
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -42,7 +42,7 @@ class App(tk.Tk):
     def create_widgets(self):
         # frame della barra superiore del programma (bottoni per cambiare la schermata e informazioni sulla board)
         top_bar_frame = self.create_top_bar_frame()
-        top_bar_frame.pack(side="top", fill="both")
+        top_bar_frame.pack(side="top", fill="x")
 
         # frame contenente il tab corrente (AcquisizioneDati, StatoMacchina o EsportazioneDati)
         tab_manager = self.create_tab_manager_frame()
@@ -56,8 +56,8 @@ class App(tk.Tk):
         top_bar_frame = ttk.Frame(self, height=50)
 
         # bottoni per cabiare schermata nel tab_manager
-        giovanni = self.create_switch_tab_buttons(top_bar_frame)
-        giovanni.pack(side="left", fill="both")        # allinea sulla sinistra
+        tab_buttons_frame = self.create_switch_tab_buttons(top_bar_frame)
+        tab_buttons_frame.pack(side="left", fill="both")        # allinea sulla sinistra
         
         # frame bluetooth + batteria (stato della board) 
         status_frame = self.create_board_status_frame(top_bar_frame)
@@ -84,7 +84,7 @@ class App(tk.Tk):
                                       text="Acquisizione dati",
                                       width=20,
                                       padding=10,
-                                      style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                      style=StyleManager.BIG_BUTTON_STYLE_NAME,
                                       command=self.show_dati_button_clicked)
         show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
@@ -93,7 +93,7 @@ class App(tk.Tk):
                                           text="Stato macchina",
                                           width=20,
                                           padding=10,
-                                          style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                          style=StyleManager.BIG_BUTTON_STYLE_NAME,
                                           command=self.show_macchina_button_clicked)
         show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
         
@@ -102,7 +102,7 @@ class App(tk.Tk):
                                          text="Esporta dati",
                                          width=20,
                                          padding=10,
-                                         style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                         style=StyleManager.BIG_BUTTON_STYLE_NAME,
                                          command=self.show_esporta_button_clicked)
         show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
 
@@ -128,11 +128,11 @@ class App(tk.Tk):
                                       command=self.bluetooth_button_clicked)
         bluetooth_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
-        self.battery_percentage_string = tk.StringVar(value="100 %")
+        self.battery_percentage_string = tk.StringVar()
         self.battery_percentage_value = 100.0
         # chiama un'ipotetica funzione che legge la percentuale di batteria
         self.battery_label = ttk.Label(status_frame,
-                                       style=StyleManager.CUSTOM_LABEL_STYLE_NAME,
+                                       style=StyleManager.MEDIUM_LABEL_STYLE_NAME,
                                        compound="left",
                                        textvariable=self.battery_percentage_string)
         self.update_battery_percentage()
@@ -142,7 +142,7 @@ class App(tk.Tk):
 
     # Crea il frame che contiene i tre tabs (AcquisizioneDati, StatoMacchina e EsportazioneDati)
     def create_tab_manager_frame(self):
-        tab_manager = tk.Frame(self, bg="red", width=100)
+        tab_manager = tk.Frame(self)
 
         tab_manager.grid_propagate(False)
         

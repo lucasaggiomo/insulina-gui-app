@@ -2,6 +2,7 @@
 # Autori:
 # Saggiomo Luca
 # Saccone Matteo
+# Romano Davide
 # Ponticelli Lorenzo
 # Porcelli Nicola
 
@@ -26,7 +27,7 @@ class AcquisizioneDati(tk.Frame):
 
         # definisco le colonne
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=5)
+        self.columnconfigure(1, weight=3)
 
         # definisco le righe
         self.rowconfigure(0, weight=2)
@@ -48,7 +49,7 @@ class AcquisizioneDati(tk.Frame):
     # Funzione per la creazione dei frame nella grid Parameters
     def create_parameters_frame(self):
         parameters_frame = tk.LabelFrame(self, text="Parameters") # creo un oggetto frame con etichetta Parameters
-        
+                
         parameters_frame.grid_propagate(True)
         parameters_frame.columnconfigure(0, weight=1)
         parameters_frame.columnconfigure(1, weight=1)
@@ -60,52 +61,68 @@ class AcquisizioneDati(tk.Frame):
         
         parameters_frame.rowconfigure(0, weight=1)
         parameters_frame.rowconfigure(1, weight=1)
-
+        
         frequency_label = ttk.Label(parameters_frame,
+                                    style=StyleManager.SMALL_LABEL_STYLE_NAME,
                                     text="Frequency",
-                                    anchor="e",
+                                    anchor="w",
+                                    padding=(10,0,10,0),
                                     width=10)
         frequency_label.grid(column=0, row=0, sticky="nesw")
        
         frequency_start_label = ttk.Label(parameters_frame,
+                                          style=StyleManager.SMALL_LABEL_STYLE_NAME,
                                           text="Start F",
                                           anchor="e", 
                                           width=10)
         frequency_start_label.grid(column=1, row=0, sticky="nesw")
         self.start_frequency = tk.DoubleVar()
         frequency_start_entry = ttk.Entry(parameters_frame,
+                                          style=StyleManager.ENTRY_STYLE_NAME,
                                           textvariable=self.start_frequency,
+                                          font=StyleManager.small_font,
                                           width=15)
         frequency_start_entry.grid(column=2, row=0, sticky="w")
 
         frequency_stop_label = ttk.Label(parameters_frame,
-                                         text="Stop F", anchor="e",
+                                         style=StyleManager.SMALL_LABEL_STYLE_NAME,
+                                         text="Stop F",
+                                         anchor="e",
                                          width=10)
         frequency_stop_label.grid(column=3, row=0, sticky="nesw")
         self.stop_frequency = tk.DoubleVar()
         frequency_stop_entry = ttk.Entry(parameters_frame,
+                                         style=StyleManager.ENTRY_STYLE_NAME,
+                                         font=StyleManager.small_font,
                                          textvariable=self.stop_frequency,
                                          width=15)
         frequency_stop_entry.grid(column=4, row=0, sticky="w")
 
         frequency_points_label = ttk.Label(parameters_frame,
+                                           style=StyleManager.SMALL_LABEL_STYLE_NAME,
                                            text="Points",
                                            anchor="e",
                                            width=10)
         frequency_points_label.grid(column=5, row=0, sticky="nesw")
-        self.points = tk.DoubleVar()
+        self.points = tk.IntVar()
         frequency_points_entry = ttk.Entry(parameters_frame,
+                                           style=StyleManager.ENTRY_STYLE_NAME,
+                                           font=StyleManager.small_font,
                                            textvariable=self.points,
                                            width=15)
         frequency_points_entry.grid(column=6, row=0, sticky="w")
         
         voltage_label = ttk.Label(parameters_frame,
+                                  style=StyleManager.SMALL_LABEL_STYLE_NAME,
                                   text="Voltage",
-                                  anchor="e",
+                                  anchor="w",
+                                  padding=(10,0,10,0),
                                   width=10)
         voltage_label.grid(column=0, row=1, sticky="nesw")
         self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
         voltage_value_entry = ttk.Entry(parameters_frame,
+                                        style=StyleManager.ENTRY_STYLE_NAME,
+                                        font=StyleManager.small_font,
                                         textvariable=self.voltage_value,
                                         width=15)
         voltage_value_entry.grid(column=2, row=1, sticky="w")
@@ -120,10 +137,10 @@ class AcquisizioneDati(tk.Frame):
         # bottom_bar_frame.pack_propagate(True)
 
         # bottoni per cabiare schermata nel tab_manager
-        giovanni = self.create_progress_bar_frame(bottom_bar_frame)
-        giovanni.pack(side="left", fill="both", pady=15, padx=20)        # allinea sulla sinistra
+        progress_bar_frame = self.create_progress_bar_frame(bottom_bar_frame)
+        progress_bar_frame.pack(side="left", fill="both", pady=30, padx=20)        # allinea sulla sinistra
 
-        self.progress_value.set(10)
+        self.progress_value.set(50)
         
         # bottoni di start, stop e cancellazione dati
         status_frame = self.create_start_stop_frame(bottom_bar_frame)
@@ -134,7 +151,7 @@ class AcquisizioneDati(tk.Frame):
     def create_progress_bar_frame(self, parent):
         self.progress_value = tk.DoubleVar()
         progress_bar_frame = ttk.Progressbar(parent,
-                                             length=200,
+                                             length=300,
                                              variable=self.progress_value)
         return progress_bar_frame
 
@@ -155,21 +172,21 @@ class AcquisizioneDati(tk.Frame):
         
         # Bottone per iniziare la misurazione
         start_button = ttk.Button(start_stop_frame,
-                                  style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                  style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
                                   image=ImageManager.start_image,
                                   command=self.start_button_clicked)
         start_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         
         # Bottone per terminare la misurazione
         stop_button = ttk.Button(start_stop_frame,
-                                 style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                 style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
                                  image=ImageManager.stop_image,
                                  command=self.stop_button_clicked)
         stop_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
         # Bottone per cancellare i dati delle misurazioni precedenti
         trash_button = ttk.Button(start_stop_frame,
-                                  style=StyleManager.CUSTOM_BUTTON_STYLE_NAME,
+                                  style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
                                   image=ImageManager.trash_image,
                                   command=self.trash_button_clicked)
         trash_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")

@@ -5,8 +5,10 @@ Questa applicazione Python fornisce un'interfaccia grafica (GUI) per visualizzar
 ## Collaboratori
 - **Ponticelli Lorenzo**
 - **Porcelli Nicola**
+- **Romano Davide**
 - **Saccone Matteo**
 - **Saggiomo Luca**
+
 
 ## Workflow del gruppo
 Sulla repo di GitHub sono presenti due branch:

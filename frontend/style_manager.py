@@ -2,6 +2,7 @@
 # Autori:
 # Saggiomo Luca
 # Saccone Matteo
+# Romano Davide
 # Ponticelli Lorenzo
 # Porcelli Nicola
 
@@ -9,32 +10,67 @@ import tkinter as tk
 from tkinter import ttk
 
 class StyleManager:
-    custom_font = ("Helvetica", 15, "bold")
+    big_font = ("Helvetica", 18, "bold")
+    medium_font = ("Helvetica", 15, "bold")
+    small_font = ("Helvetica", 13, "bold")
+    
     foreground_color = "darkblue"
 
     # Definisco delle costanti per i nomi degli stili
     # (in modo da semplificare la modifica, senza dover modificare il nome dappertutto)
-    CUSTOM_BUTTON_STYLE_NAME = "Custom.TButton"
+    BIG_BUTTON_STYLE_NAME = "Big.TButton"
+    MEDIUM_BUTTON_STYLE_NAME = "Medium.TButton"
+    
     CUSTOM_LABELBUTTON_STYLE_NAME = "Custom2.TLabel"
-    CUSTOM_LABEL_STYLE_NAME = "Custom.TLabel"
+    
+    # Label
+    BIG_LABEL_STYLE_NAME = "Big.TLabel"
+    MEDIUM_LABEL_STYLE_NAME = "Medium.TLabel"
+    SMALL_LABEL_STYLE_NAME = "Small.TLabel"
+    
+    # Entry
+    ENTRY_STYLE_NAME = "Custom.TEntry"
     
     @staticmethod
     def load_styles():
         style = ttk.Style()
 
-        # Stile per bottoni
-        style.configure(StyleManager.CUSTOM_BUTTON_STYLE_NAME,       # nome
-                        font=StyleManager.custom_font,              # font
+        # BOTTONI
+        style.configure(StyleManager.BIG_BUTTON_STYLE_NAME,         # nome
+                        font=StyleManager.big_font,                 # font
+                        foreground=StyleManager.foreground_color,   # colore testo
+                        padding=10
+                        )
+        style.configure(StyleManager.MEDIUM_BUTTON_STYLE_NAME,      # nome
+                        font=StyleManager.medium_font,              # font
                         foreground=StyleManager.foreground_color,   # colore testo
                         padding=10
                         )
                 
-        style.configure(StyleManager.CUSTOM_LABEL_STYLE_NAME,       # nome
-                        font=StyleManager.custom_font,              # font
+        # LABEL
+        style.configure(StyleManager.BIG_LABEL_STYLE_NAME,          # nome
+                        font=StyleManager.big_font,                 # font
+                        foreground=StyleManager.foreground_color,   # colore testo
+                        padding=(0,0,10,0)
+                        )
+        style.configure(StyleManager.MEDIUM_LABEL_STYLE_NAME,          # nome
+                        font=StyleManager.medium_font,                 # font
+                        foreground=StyleManager.foreground_color,   # colore testo
+                        padding=(0,0,10,0)
+                        )
+        style.configure(StyleManager.SMALL_LABEL_STYLE_NAME,        # nome
+                        font=StyleManager.small_font,               # font
                         foreground=StyleManager.foreground_color,   # colore testo
                         padding=(0,0,10,0)
                         )
 
+        # ENTRY
+        style.configure(StyleManager.ENTRY_STYLE_NAME,              # nome
+                        font=StyleManager.medium_font,               # font
+                        foreground=StyleManager.foreground_color,   # colore testo
+                        padding=10
+                        )
+        
         # Definisco uno stile per la label che appare come un bottone
         style.configure(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,
                         relief="raised",  # Effetto di contorno "bottone"
