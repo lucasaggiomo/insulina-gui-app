@@ -2,11 +2,18 @@
 # Autori:
 # Saggiomo Luca
 # Saccone Matteo
+# Romano Davide
 # Ponticelli Lorenzo
 # Porcelli Nicola
 
+# Importo la libreria tkinter
 import tkinter as tk
 from tkinter import ttk
+
+# Importo altre classi
+from tabs import *
+from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
+from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 
 class App(tk.Tk):
 
@@ -15,191 +22,178 @@ class App(tk.Tk):
         super().__init__()
 
         # Size iniziale della finestra
-        self.geometry("1100x600")
-        self.minsize(width=900, height=400)
-
+        self.geometry("1300x800")
+        self.minsize(width=1200, height=600)
+        
         # Titolo finestra
         self.title("Fondamenti di Misure")
 
-        # Non permettere il resize
-        # self.resizable(0, 0)
-        
+        # Carico tutte le immagini dell'applicazione con la classe ImageManager
+        ImageManager.load_images()
+
+        # Carico tutti gli stili dell'applicazione con la classe StyleManager
+        StyleManager.load_styles()
+                
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
 
-    # Funzione per la creazione dei frame nella grid Parameters
-    def create_parameters_frame(self, parent):
-        parameters_frame = tk.LabelFrame(parent, text="Parameters", bg="red") # creo un oggetto frame con etichetta Parameters
-        
-        #parameters_frame.grid_propagate(True)
-        parameters_frame.columnconfigure(0, weight=1)
-        parameters_frame.columnconfigure(1, weight=1)
-        parameters_frame.columnconfigure(2, weight=1)
-        parameters_frame.columnconfigure(3, weight=1)
-        parameters_frame.columnconfigure(4, weight=1)
-        parameters_frame.columnconfigure(5, weight=1)
-        parameters_frame.columnconfigure(6, weight=1)
-        
-        parameters_frame.rowconfigure(0, weight=1)
-        parameters_frame.rowconfigure(1, weight=1)
 
-        frequency_label = tk.Label(parameters_frame, text="Frequency", anchor="e", height=2, width=10, bg="red")
-        frequency_label.grid(column=0, row=0, sticky="nesw")
-       
-        frequency_start_label = tk.Label(parameters_frame, text="Start F", anchor="e", height=2, width=10, bg="red")
-        frequency_start_label.grid(column=1, row=0, sticky="nesw")
-        self.start_frequency = tk.DoubleVar()
-        frequency_start_entry = tk.Entry(parameters_frame, textvariable=self.start_frequency, width=15)
-        frequency_start_entry.grid(column=2, row=0, sticky="w")
-
-        frequency_stop_label = tk.Label(parameters_frame, text="Stop F", anchor="e", height=2, width=10, bg="red")
-        frequency_stop_label.grid(column=3, row=0, sticky="nesw")
-        self.stop_frequency = tk.DoubleVar()
-        frequency_stop_entry = tk.Entry(parameters_frame, textvariable=self.stop_frequency, width=15)
-        frequency_stop_entry.grid(column=4, row=0, sticky="w")
-
-        frequency_points_label = tk.Label(parameters_frame, text="Points", anchor="e", height=2, width=10, bg="red")
-        frequency_points_label.grid(column=5, row=0, sticky="nesw")
-        self.points = tk.DoubleVar()
-        frequency_points_entry = tk.Entry(parameters_frame, textvariable=self.points, width=15)
-        frequency_points_entry.grid(column=6, row=0, sticky="w")
-        
-        voltage_label = tk.Label(parameters_frame, text="Voltage", anchor="e", height=2, width=10, bg="red")
-        voltage_label.grid(column=0, row=1, sticky="nesw")
-        self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
-        voltage_value_entry = tk.Entry(parameters_frame, textvariable=self.voltage_value, width=15)
-        voltage_value_entry.grid(column=2, row=1, sticky="w")
-        
-        return parameters_frame
-
-    def create_dati_tab(self, tab_control):
-        acquisizione_dati_frame = tk.Frame(tab_control)
-        
-        acquisizione_dati_frame.grid_propagate(False)
-
-        # definisco le colonne
-        acquisizione_dati_frame.columnconfigure(0, weight=1)
-        acquisizione_dati_frame.columnconfigure(1, weight=5)
-
-        # definisco le righe
-        acquisizione_dati_frame.rowconfigure(0, weight=2)
-        acquisizione_dati_frame.rowconfigure(1, weight=6)
-        acquisizione_dati_frame.rowconfigure(2, weight=1)
-
-        parameters_frame = self.create_parameters_frame(acquisizione_dati_frame)
-        parameters_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nsew") # creo il frame dei parametri
-
-        # tabs_frame = tk.Frame(self, bg="yellow")
-        # tabs_frame.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
-
-        value_table = tk.LabelFrame(acquisizione_dati_frame, text="Tabella valori", bg="blue")
-        value_table.grid(column=1, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
-
-        graph_frame = tk.Frame(acquisizione_dati_frame, bg="green")
-        graph_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
-
-        progress_bar_frame = tk.Frame(acquisizione_dati_frame, bg="purple")
-        progress_bar_frame.grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
-        
-        return acquisizione_dati_frame
-    
-    def create_macchina_tab(self, tab_control):
-        stato_macchina_frame = tk.Frame(tab_control)
-        
-        stato_macchina_frame.grid_propagate(False)
-
-        # definisco le colonne
-        stato_macchina_frame.columnconfigure(0, weight=1)
-        stato_macchina_frame.columnconfigure(1, weight=1)
-        stato_macchina_frame.columnconfigure(2, weight=1)
-
-        # definisco le righe
-        stato_macchina_frame.rowconfigure(0, weight=2)
-
-        dati_macchina_frame = tk.Frame(stato_macchina_frame, bg="blue")
-        dati_macchina_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
-
-        logger_macchina_frame = tk.Frame(stato_macchina_frame, bg="green")
-        logger_macchina_frame.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
-
-        errori_frame = tk.Frame(stato_macchina_frame, bg="purple")
-        errori_frame.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
-        
-        return stato_macchina_frame
-    
-    def create_file_tab(self, tab_control):
-        file_frame = tk.Frame(tab_control)
-        
-        file_frame.grid_propagate(False)
-
-        # definisco le colonne
-        file_frame.columnconfigure(0, weight=1)
-        
-
-        # definisco le righe
-        file_frame.rowconfigure(0, weight=2)
-        file_frame.rowconfigure(1, weight=2)
-
-        export_excel_frame = tk.Frame(file_frame, bg="blue")
-        export_excel_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
-
-        export_pdf_frame = tk.Frame(file_frame, bg="green")
-        export_pdf_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
-
-       
-        return file_frame
-
+    # Funzione per creare tutti i widgets della finestra
     def create_widgets(self):
-        self.grid_propagate(False)
+        # frame della barra superiore del programma (bottoni per cambiare la schermata e informazioni sulla board)
+        top_bar_frame = self.create_top_bar_frame()
+        top_bar_frame.pack(side="top", fill="x")
+
+        # frame contenente il tab corrente (AcquisizioneDati, StatoMacchina o EsportazioneDati)
+        tab_manager = self.create_tab_manager_frame()
+        tab_manager.pack(side="bottom", fill="both", expand=True)
+
+
+    # Crea la barra superiore del programma, contenente:
+    #   - i bottoni per cambiare schermata nel tab_manager (FUNZIONE create_switch_tab_buttons)
+    #   - informazioni sullo stato della board (bluetooth + batteria) (FUNZIONE create_board_status_frame)
+    def create_top_bar_frame(self):
+        top_bar_frame = ttk.Frame(self, height=50)
+
+        # bottoni per cabiare schermata nel tab_manager
+        tab_buttons_frame = self.create_switch_tab_buttons(top_bar_frame)
+        tab_buttons_frame.pack(side="left", fill="both")        # allinea sulla sinistra
         
-        # definisco le colonne della finestra globale
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
-        self.columnconfigure(2, weight=1)
-        self.columnconfigure(3, weight=1)
+        # frame bluetooth + batteria (stato della board) 
+        status_frame = self.create_board_status_frame(top_bar_frame)
+        status_frame.pack(side="right", fill="both")   # allinea sulla destra
+
+        return top_bar_frame
+
+    # Crea i bottoni per cambiare schermata nel tab_manager
+    def create_switch_tab_buttons(self, parent):
+        switch_tab_buttons = ttk.Frame(parent)
+
+        switch_tab_buttons.grid_propagate(True)
+
+        # Definisco la riga della topbar
+        switch_tab_buttons.rowconfigure(0, weight=1)
+
+        # Definisco le colonne della topbar        
+        switch_tab_buttons.columnconfigure(0, weight=0)
+        switch_tab_buttons.columnconfigure(1, weight=0)
+        switch_tab_buttons.columnconfigure(2, weight=0)
+
+        # Bottone per mostrare la schermata dell'acquisizione dati
+        show_dati_button = ttk.Button(switch_tab_buttons,
+                                      text="Acquisizione dati",
+                                      width=20,
+                                      padding=10,
+                                      style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                      command=self.show_dati_button_clicked)
+        show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
+
+        # Bottone per mostrare la schermata dello stato macchina
+        show_macchina_button = ttk.Button(switch_tab_buttons,
+                                          text="Stato macchina",
+                                          width=20,
+                                          padding=10,
+                                          style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                          command=self.show_macchina_button_clicked)
+        show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
         
-        # definisco le righe della finestra globale
-        self.rowconfigure(0, weight=1)
-        self.rowconfigure(1, weight=10)
+        # Bottone per mostrare la schermata dell'esportazione dati
+        show_esporta_button = ttk.Button(switch_tab_buttons,
+                                         text="Esporta dati",
+                                         width=20,
+                                         padding=10,
+                                         style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                         command=self.show_esporta_button_clicked)
+        show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
 
-        tab_control = tk.Frame(self, bg="yellow")
-        tab_control.grid(column=0, row=1, columnspan=4, sticky="nesw")
-
-        tab_control.grid_propagate(False)
-        
-        tab_control.rowconfigure(0, weight=1)
-        tab_control.columnconfigure(0, weight=1)
-
-        dati_tab = self.create_dati_tab(tab_control)
-        dati_tab.grid(row=0,column=0, sticky="nsew");
-
-        macchina_tab = self.create_macchina_tab(tab_control)
-        macchina_tab.grid(row=0,column=0, sticky="nsew");
-        
-        esporta_tab = self.create_file_tab(tab_control)
-        esporta_tab.grid(row=0,column=0, sticky="nsew");
-
-        dati_tab.tkraise()
-
-        dati_button = tk.Button(self, text="Acquisizione dati", command=dati_tab.tkraise)
-        dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
-
-        macchina_button = tk.Button(self, text="Stato macchina", command=macchina_tab.tkraise)
-        macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
-        
-        esporta_button = tk.Button(self, text="Caricamento a file", command=esporta_tab.tkraise)
-        esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
-        
-        # frame bluetooth + batteria (stato della board)
-        status_frame = tk.Frame(self, bg="darkgreen")
-        status_frame.grid(column=3, row=0, padx=5, pady=5, sticky="nsew")
-        
-        # tab_control.add(dati_tab, text="Acquisizione dati")
-        # tab_control.add(macchina_tab, text="Stato macchina")
-        # tab_control.add(esporta_tab, text="Caricamento file")
-
+        return switch_tab_buttons
     
+    # Creazione del Frame bluetooth + batteria (stato della board) 
+    def create_board_status_frame(self, parent):
+        status_frame = ttk.Frame(parent)
+        
+        status_frame.grid_propagate(True)
+        
+        # definisco la riga
+        status_frame.rowconfigure(0, weight=1)
+        
+        # definisco le colonne
+        status_frame.columnconfigure(0, weight=0)
+        status_frame.columnconfigure(1, weight=0)
+        
+        bluetooth_button = ttk.Button(status_frame,
+                                      width=10,
+                                      image=ImageManager.bluetooth_image,
+                                      compound="right",
+                                      command=self.bluetooth_button_clicked)
+        bluetooth_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
+        
+        self.battery_percentage_string = tk.StringVar()
+        self.battery_percentage_value = 100.0
+        # chiama un'ipotetica funzione che legge la percentuale di batteria
+        self.battery_label = ttk.Label(status_frame,
+                                       style=StyleManager.MEDIUM_LABEL_STYLE_NAME,
+                                       compound="left",
+                                       textvariable=self.battery_percentage_string)
+        self.update_battery_percentage()
+        self.battery_label.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
+        
+        return status_frame
+
+    # Crea il frame che contiene i tre tabs (AcquisizioneDati, StatoMacchina e EsportazioneDati)
+    def create_tab_manager_frame(self):
+        tab_manager = tk.Frame(self)
+
+        tab_manager.grid_propagate(False)
+        
+        # Definisco la riga dello status bar
+        tab_manager.rowconfigure(0, weight=1)
+
+        # Definisco la colonna dello status bar
+        tab_manager.columnconfigure(0, weight=1)
+
+        self.dati_tab = AcquisizioneDati(tab_manager)
+        self.dati_tab.grid(row=0,column=0, sticky="nsew")
+        self.dati_tab.progress_value = 50
+
+        self.macchina_tab = StatoMacchina(tab_manager)
+        self.macchina_tab.grid(row=0,column=0, sticky="nsew")
+        
+        self.esporta_tab = EsportazioneDati(tab_manager)
+        self.esporta_tab.grid(row=0,column=0, sticky="nsew")
+
+        self.dati_tab.tkraise()
+        
+        return tab_manager
     
+
+    # Aggiorna la percentuale di batteria
+    def update_battery_percentage(self):
+        newPercentage = self.read_board_battery_percentage()
+        self.battery_percentage_value = newPercentage
+        self.battery_percentage_string.set(f"{newPercentage} %")
+        
+        self.battery_label.configure(image = ImageManager.get_battery_image(newPercentage))
+            
+    # Questo metodo legge la percentuale di batteria della board
+    def read_board_battery_percentage(self):
+        return 74.0      # percentuale fittizia
+        
+    # EVENTI BOTTONI
+    def show_dati_button_clicked(self):
+        self.dati_tab.tkraise()
+        print("Schermata Acquisizione Dati selezionata")
+
+    def show_macchina_button_clicked(self):
+        self.macchina_tab.tkraise()
+        print("Schermata Stato Macchina selezionata")
+        
+    def show_esporta_button_clicked(self):
+        self.esporta_tab.tkraise()
+        print("Schermata Esportazione Dati selezionata")
+        
+    def bluetooth_button_clicked(self):
+        print("Bottone bluetooth clickato")
 
 if __name__ == "__main__":
     app = App() # invoco il costruttore
