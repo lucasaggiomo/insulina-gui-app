@@ -4,6 +4,7 @@
 # Saccone Matteo
 # Ponticelli Lorenzo
 # Porcelli Nicola
+# Romano Davide
 
 # Importo la libreria tkinter
 import tkinter as tk
