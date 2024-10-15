@@ -252,8 +252,10 @@ class AcquisizioneDati(tk.Frame):
         
         return start_stop_frame
         
+    # Metodo che, dato in ingresso una variabile tkinter numerica (IntVar o DoubleVar), restituisce il valore associato
+    # Solleva un errore talora il valore non sia compreso nell'intervallo [min, max]
     @staticmethod
-    def get_double_value(variable, min, max):
+    def get_variable_value(variable, min, max):
         value = variable.get()
         
         if value < min or value > max:
@@ -264,21 +266,23 @@ class AcquisizioneDati(tk.Frame):
     def start_button_clicked(self):
         try:
             # Leggiamo i valori degli oggetti entry, verificando che siano compresi nell'intervallo giusto
-            startF = AcquisizioneDati.get_double_value(self.start_frequency,
-                                                       AcquisizioneDati.MIN_FREQUENCY,
-                                                       AcquisizioneDati.MAX_FREQUENCY)
+            # Eseguiamo questo blocco di codice in un try, in modo da gestire eventuali errori nel blocco except
+
+            startF = AcquisizioneDati.get_variable_value(self.start_frequency,
+                                                         AcquisizioneDati.MIN_FREQUENCY,
+                                                         AcquisizioneDati.MAX_FREQUENCY)
             
-            stopF = AcquisizioneDati.get_double_value(self.stop_frequency,
-                                                      startF,
-                                                      AcquisizioneDati.MAX_FREQUENCY)
+            stopF = AcquisizioneDati.get_variable_value(self.stop_frequency,
+                                                        startF,
+                                                        AcquisizioneDati.MAX_FREQUENCY)
             
-            freqPoints = AcquisizioneDati.get_double_value(self.frequency_points,
-                                                           AcquisizioneDati.MIN_POINTS,
-                                                           AcquisizioneDati.MAX_POINTS)
+            freqPoints = AcquisizioneDati.get_variable_value(self.frequency_points,
+                                                             AcquisizioneDati.MIN_POINTS,
+                                                             AcquisizioneDati.MAX_POINTS)
             
-            voltage = AcquisizioneDati.get_double_value(self.voltage_value,
-                                                        AcquisizioneDati.MIN_VOLTAGE,
-                                                        AcquisizioneDati.MAX_VOLTAGE)
+            voltage = AcquisizioneDati.get_variable_value(self.voltage_value,
+                                                          AcquisizioneDati.MIN_VOLTAGE,
+                                                          AcquisizioneDati.MAX_VOLTAGE)
             
             print(f"La frequenza iniziale è: {startF} kHz")
             print(f"La frequenza finale è: {stopF} kHz")
@@ -287,8 +291,10 @@ class AcquisizioneDati(tk.Frame):
         
             print("La misurazione è iniziata")
         
-        except (ValueError, tk.TclError):  # Eccezione per input non validi
-        # Gestisci l'errore mostrando una finestra di dialogo con un messaggio di errore
+        except (ValueError, tk.TclError):
+            # Cattura dell'eccezione per input non validi
+            # Gestione dell'errore mostrando una finestra di dialogo con un messaggio di errore
+            
             messagebox.showerror("Errore", "Controlla i parametri inseriti!")
             print("La misurazione è stata interrotta per errori")
             
