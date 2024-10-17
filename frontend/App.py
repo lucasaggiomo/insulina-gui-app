@@ -16,6 +16,7 @@ from tkinter import ttk
 from tabs import *
 from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
 from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
+import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 from screeninfo import get_monitors
 
 
@@ -55,8 +56,8 @@ class App(tk.Tk):
         self.create_widgets()
 
     def on_closing(self):
-        # Qui puoi aggiungere eventuali operazioni di pulizia necessarie
-        self.destroy()  # Chiudi la finestra
+        plt.close('all')  # Chiude tutte le figure matplotlib aperte
+        self.destroy()     # Chiude la finestra tkinter
 
 
     # Funzione per creare tutti i widgets della finestra
