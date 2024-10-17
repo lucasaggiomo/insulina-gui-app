@@ -28,6 +28,8 @@ class StyleManager:
     MEDIUM_LABEL_STYLE_NAME = "Medium.TLabel"
     SMALL_LABEL_STYLE_NAME = "Small.TLabel"
     
+    SMALL_TREE_VIEW_STYLE_NAME = "Small.TreeView"
+    
     # Entry
     ENTRY_STYLE_NAME = "Custom.TEntry"
     
@@ -70,6 +72,21 @@ class StyleManager:
                         foreground=StyleManager.foreground_color,   # colore testo
                         padding=10
                         )
+        
+        # TREE VIEW
+        style.configure(StyleManager.SMALL_TREE_VIEW_STYLE_NAME,          # nome
+                        font=StyleManager.medium_font,                 # font
+                        foreground=StyleManager.foreground_color,   # colore testo
+                        padding=(0,0,10,0)
+                )
+        
+        style.configure("Treeview.Heading",
+                        font=StyleManager.small_font,
+                        foreground=StyleManager.foreground_color)
+        
+        style.configure("Treeview",
+                        font=StyleManager.small_font,
+                        foreground=StyleManager.foreground_color)
         
         # Definisco uno stile per la label che appare come un bottone
         style.configure(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,

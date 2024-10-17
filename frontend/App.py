@@ -16,16 +16,31 @@ from tkinter import ttk
 from tabs import *
 from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
 from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
+from screeninfo import get_monitors
+
 
 class App(tk.Tk):
 
     # Costruttore che costruisce l'oggetto di tipo App
     def __init__(self): 
         super().__init__()
+        
+        # Imposta il protocollo per la chiusura della finestra
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Size iniziale della finestra
-        self.geometry("1300x800")
-        self.minsize(width=1200, height=600)
+        # Ottieni la risoluzione dello schermo
+        screen_width = get_monitors()[0].width
+        screen_height = get_monitors()[0].height
+
+        # Imposta la finestra al 80% della larghezza e al 90% dell'altezza dello schermo
+        window_width = int(screen_width * 0.8)
+        window_height = int(screen_height * 0.8)
+
+        # Imposta la geometria della finestra
+        self.geometry(f"{window_width}x{window_height}")
+        
+        self.minsize(width=int(screen_width * 0.5),
+                     height=int(screen_width * 0.3))
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -38,6 +53,10 @@ class App(tk.Tk):
                 
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
+
+    def on_closing(self):
+        # Qui puoi aggiungere eventuali operazioni di pulizia necessarie
+        self.destroy()  # Chiudi la finestra
 
 
     # Funzione per creare tutti i widgets della finestra
