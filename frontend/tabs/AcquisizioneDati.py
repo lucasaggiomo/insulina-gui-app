@@ -18,6 +18,7 @@ from style_manager import StyleManager
         
 # Definisco la classe AcquisizioneDati, che eredita da tk.Frame
 class AcquisizioneDati(tk.Frame):
+    # Costanti della classe
     # kHz
     MIN_FREQUENCY = 1
     MAX_FREQUENCY = 100
@@ -28,6 +29,9 @@ class AcquisizioneDati(tk.Frame):
     
     MIN_POINTS = 1
     MAX_POINTS = 1000
+    
+    FREQUENZA_SINGOLA = False
+    FREQUENZA_SWEEP = True
     
     # Costruttore che costruisce l'oggetto di tipo App
     def __init__(self, parent_frame): 
@@ -40,7 +44,7 @@ class AcquisizioneDati(tk.Frame):
 
         # definisco le colonne
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=0)
+        self.columnconfigure(1, weight=1)
 
         # definisco le righe
         self.rowconfigure(0, weight=0)
@@ -121,7 +125,8 @@ class AcquisizioneDati(tk.Frame):
         parameters_frame = tk.LabelFrame(self, text="Parameters") # creo un oggetto frame con etichetta Parameters
                 
         parameters_frame.grid_propagate(True)
-        parameters_frame.columnconfigure(0, weight=1)
+        
+        parameters_frame.columnconfigure(0, weight=0)
         parameters_frame.columnconfigure(1, weight=1)
         parameters_frame.columnconfigure(2, weight=1)
         parameters_frame.columnconfigure(3, weight=1)
@@ -131,20 +136,31 @@ class AcquisizioneDati(tk.Frame):
         
         parameters_frame.rowconfigure(0, weight=1)
         parameters_frame.rowconfigure(1, weight=1)
+        parameters_frame.rowconfigure(2, weight=1)
+        
+        # Bottoni per cambiare modalità (frequenza singola / frequenza sweep)
+        self.toggle_frequency_mode_button = ttk.Button(parameters_frame,
+                                                       text="Frequenza singola",
+                                                       width=20,
+                                                       padding=10,
+                                                       style=StyleManager.MEDIUM_RED_BUTTON_STYLE_NAME,
+                                                       command=self.toggle_frequency_mode_button_clicked)
+        self.toggle_frequency_mode_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
+        self.current_frequency_mode = AcquisizioneDati.FREQUENZA_SINGOLA
         
         frequency_label = ttk.Label(parameters_frame,
-                                    style=StyleManager.SMALL_LABEL_STYLE_NAME,
+                                    style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                     text=f"Frequency\n({AcquisizioneDati.MIN_FREQUENCY} kHz - {AcquisizioneDati.MAX_FREQUENCY} kHz)",
                                     anchor="w",
                                     padding=(10,0,10,20))
-        frequency_label.grid(column=0, row=0, sticky="nesw")
+        frequency_label.grid(column=0, row=1, sticky="nesw")
        
-        frequency_start_label = ttk.Label(parameters_frame,
-                                          style=StyleManager.SMALL_LABEL_STYLE_NAME,
+        self.frequency_start_label = ttk.Label(parameters_frame,
+                                          style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                           text="Start F",
                                           anchor="e", 
                                           width=10)
-        frequency_start_label.grid(column=1, row=0, sticky="nesw")
+        self.frequency_start_label.grid(column=1, row=1, sticky="nesw")
 
         # Registra le funzioni di validazione per le entry dei parametri (uno per i double e uno per gli int)
         vcmd_double = (self.register(AcquisizioneDati.validate_double_number),  '%d', '%S', '%P')
@@ -153,70 +169,79 @@ class AcquisizioneDati(tk.Frame):
         self.start_frequency = tk.DoubleVar()
         
         self.frequency_start_entry = ttk.Entry(parameters_frame,
-                                          style=StyleManager.ENTRY_STYLE_NAME,
-                                          textvariable=self.start_frequency,
-                                          font=StyleManager.small_font,
-                                          width=15,
-                                          validate="key",
-                                          validatecommand=vcmd_double)
-        self.frequency_start_entry.grid(column=2, row=0, sticky="w")
+                                            style=StyleManager.ENTRY_BLUE_STYLE_NAME,
+                                            textvariable=self.start_frequency,
+                                            font=StyleManager.small_font,
+                                            width=15,
+                                            validate="key",
+                                            validatecommand=vcmd_double)
+        self.frequency_start_entry.grid(column=2, row=1, sticky="w")
 
         self.frequency_stop_label = ttk.Label(parameters_frame,
-                                         style=StyleManager.SMALL_LABEL_STYLE_NAME,
+                                         style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                          text="Stop F",
                                          anchor="e",
                                          width=10)
-        self.frequency_stop_label.grid(column=3, row=0, sticky="nesw")
-        
+
         self.stop_frequency = tk.DoubleVar()
         
         self.frequency_stop_entry = ttk.Entry(parameters_frame,
-                                         style=StyleManager.ENTRY_STYLE_NAME,
+                                         style=StyleManager.ENTRY_BLUE_STYLE_NAME,
                                          font=StyleManager.small_font,
                                          textvariable=self.stop_frequency,
                                          width=15,
                                          validate="key",
                                          validatecommand=vcmd_double)
-        self.frequency_stop_entry.grid(column=4, row=0, sticky="w")
 
         self.frequency_points_label = ttk.Label(parameters_frame,
-                                           style=StyleManager.SMALL_LABEL_STYLE_NAME,
+                                           style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                            text="Points",
                                            anchor="e",
                                            width=10)
-        self.frequency_points_label.grid(column=5, row=0, sticky="nesw")
         
         self.frequency_points = tk.IntVar()
         
         self.frequency_points_entry = ttk.Entry(parameters_frame,
-                                           style=StyleManager.ENTRY_STYLE_NAME,
+                                           style=StyleManager.ENTRY_BLUE_STYLE_NAME,
                                            font=StyleManager.small_font,
                                            textvariable=self.frequency_points,
                                            width=15,
                                            validate="key",
                                            validatecommand=vcmd_int)
-        self.frequency_points_entry.grid(column=6, row=0, sticky="w")
         
         voltage_label = ttk.Label(parameters_frame,
-                                  style=StyleManager.SMALL_LABEL_STYLE_NAME,
+                                  style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                   text=f"Voltage\n({AcquisizioneDati.MIN_VOLTAGE} mV - {AcquisizioneDati.MAX_VOLTAGE} mV)",
                                   anchor="w",
                                   padding=(10,0,10,20))
-        voltage_label.grid(column=0, row=1, sticky="nesw")
+        voltage_label.grid(column=0, row=2, sticky="nesw")
+        
+        self.voltage_value_label = ttk.Label(parameters_frame,
+                                            style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
+                                            text="Voltage",
+                                            anchor="e", 
+                                            width=10)
+        self.voltage_value_label.grid(column=1, row=2, sticky="nesw")
         
         self.voltage_value = tk.DoubleVar() # voltage_value appartiene all'oggetto self
         
         voltage_value_entry = ttk.Entry(parameters_frame,
-                                        style=StyleManager.ENTRY_STYLE_NAME,
+                                        style=StyleManager.ENTRY_BLUE_STYLE_NAME,
                                         font=StyleManager.small_font,
                                         textvariable=self.voltage_value,
                                         width=15,
                                         validate="key",
                                         validatecommand=vcmd_double)
-        voltage_value_entry.grid(column=2, row=1, sticky="w")
+        voltage_value_entry.grid(column=2, row=2, sticky="w")
+        
+        # inizializza le posizioni nella griglia di StopF e Points (solo quelli che sono modificati al cambio della modalità di frequenza)
+        self.init_parameters_grid()
         
         # inizializza i valori
         self.reset_parameters()
+        
+        # inizializza la modalità di frequenza
+        self.show_single_frequency()
         
         return parameters_frame
     
@@ -264,15 +289,15 @@ class AcquisizioneDati(tk.Frame):
         
         # creo una entry per simulare l'input dalla board
         lettura_label = ttk.Label(bottom_bar_frame,
-                                    style=StyleManager.SMALL_LABEL_STYLE_NAME,
-                                    text="Lettura di impedenza della board simulata (1 Ohm - 500 Ohm):",
+                                    style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
+                                    text="Lettura di impedenza\ndella board simulata\n(1 Ohm - 500 Ohm):",
                                     anchor="w",
                                     padding=(10,0,10,0))
         lettura_label.pack(side="left", fill="both", padx=30, pady=30)
         
         self.lettura_impedenza = tk.DoubleVar()
         self.lettura_impedenza_entry = ttk.Entry(bottom_bar_frame,
-                                          style=StyleManager.ENTRY_STYLE_NAME,
+                                          style=StyleManager.ENTRY_BLUE_STYLE_NAME,
                                           textvariable=self.lettura_impedenza,
                                           font=StyleManager.small_font,
                                           width=15)
@@ -311,21 +336,21 @@ class AcquisizioneDati(tk.Frame):
         
         # Bottone per iniziare la misurazione
         start_button = ttk.Button(start_stop_frame,
-                                  style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
+                                  style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
                                   image=ImageManager.start_image,
                                   command=self.start_button_clicked)
         start_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         
         # Bottone per terminare la misurazione
         stop_button = ttk.Button(start_stop_frame,
-                                 style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
+                                 style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
                                  image=ImageManager.stop_image,
                                  command=self.stop_button_clicked)
         stop_button.grid(column=1, row=0, padx=5, pady=5, sticky="nsew")
         
         # Bottone per cancellare i dati delle misurazioni precedenti
         trash_button = ttk.Button(start_stop_frame,
-                                  style=StyleManager.MEDIUM_BUTTON_STYLE_NAME,
+                                  style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
                                   image=ImageManager.trash_image,
                                   command=self.trash_button_clicked)
         trash_button.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
@@ -343,53 +368,6 @@ class AcquisizioneDati(tk.Frame):
         
         return value
         
-    def start_button_clicked(self):
-        try:
-            # Leggiamo i valori degli oggetti entry, verificando che siano compresi nell'intervallo giusto
-            # Eseguiamo questo blocco di codice in un try, in modo da gestire eventuali errori nel blocco except
-
-            startF = AcquisizioneDati.get_variable_value(self.start_frequency,
-                                                         AcquisizioneDati.MIN_FREQUENCY,
-                                                         AcquisizioneDati.MAX_FREQUENCY)
-            
-            stopF = AcquisizioneDati.get_variable_value(self.stop_frequency,
-                                                        startF,
-                                                        AcquisizioneDati.MAX_FREQUENCY)
-            
-            freqPoints = AcquisizioneDati.get_variable_value(self.frequency_points,
-                                                             AcquisizioneDati.MIN_POINTS,
-                                                             AcquisizioneDati.MAX_POINTS)
-            
-            voltage = AcquisizioneDati.get_variable_value(self.voltage_value,
-                                                          AcquisizioneDati.MIN_VOLTAGE,
-                                                          AcquisizioneDati.MAX_VOLTAGE)
-            
-            print(f"La frequenza iniziale è: {startF} kHz")
-            print(f"La frequenza finale è: {stopF} kHz")
-            print(f"Il numero di frequenze è: {freqPoints}")
-            print(f"Il voltaggio è: {voltage} mV")
-        
-            print("La misurazione è iniziata")
-            
-            # Legge la misurazione (simulata) dalla entry
-            lettura = AcquisizioneDati.get_variable_value(self.lettura_impedenza,
-                                                          1,
-                                                          500)
-            self.numero_misurazioni += 1            # incremento il numero di misurazioni
-            
-            # Aggiorna il grafico, aggiungendo il nuovo punto
-            self.add_graph_point(lettura)
-            
-            # Aggiorna la tabella, aggiungendo la nuova misurazione
-            self.add_value_in_table(lettura)
-        
-        except (ValueError, tk.TclError):
-            # Cattura dell'eccezione per input non validi
-            # Gestione dell'errore mostrando una finestra di dialogo con un messaggio di errore
-            
-            messagebox.showerror("Errore", "Controlla i parametri inseriti!")
-            print("La misurazione è stata interrotta per errori")
-            
     @staticmethod
     def init_graph(graph):
         graph.set_title("Grafico misurazioni", fontsize=20)  
@@ -399,7 +377,7 @@ class AcquisizioneDati(tk.Frame):
         graph.grid(True)
         
         graph.set_xlim(1, 10)
-        graph.set_ylim(1, 500)
+        graph.set_ylim(0, 600)
         
     def add_graph_point(self, lettura):
         # Aggiungi la nuova misurazione alle liste
@@ -429,24 +407,6 @@ class AcquisizioneDati(tk.Frame):
     def add_value_in_table(self, lettura):
         self.value_table.insert("", tk.END, values=(self.numero_misurazioni, lettura, 0))
 
-    def stop_button_clicked(self):
-        has_to_stop = messagebox.askyesno(title="Interruzione misurazione",
-                                          message="Sei sicuro di voler interrompere la misurazione?")
-        if(has_to_stop):
-            self.stop_measurement()
-            print("La misurazione è stata interrotta")
-        else:
-            print("L'interruzione è stata annullata")
-    
-    def trash_button_clicked(self):
-        has_to_cancel = messagebox.askyesno(title="Cancellazione dati",
-                                            message="Sei sicuro di voler cancellare i dati?")
-        if(has_to_cancel):
-            self.cancel_data()
-            print("Le misurazioni sono state cancellate")
-        else:
-            print("La cancellazione è stata annullata")
-            
     def cancel_data(self):
         print("Cancellazione dati...")
         
@@ -479,3 +439,121 @@ class AcquisizioneDati(tk.Frame):
 
     def stop_measurement(self):
         print("Interruzione della misurazione...")
+        
+        
+    # COMANDI BOTTONI
+    
+    def start_button_clicked(self):
+        try:
+            # Leggiamo i valori degli oggetti entry, verificando che siano compresi nell'intervallo giusto
+            # Eseguiamo questo blocco di codice in un try, in modo da gestire eventuali errori nel blocco except
+
+            startF = AcquisizioneDati.get_variable_value(self.start_frequency,
+                                                         AcquisizioneDati.MIN_FREQUENCY,
+                                                         AcquisizioneDati.MAX_FREQUENCY)
+            
+            voltage = AcquisizioneDati.get_variable_value(self.voltage_value,
+                                                          AcquisizioneDati.MIN_VOLTAGE,
+                                                          AcquisizioneDati.MAX_VOLTAGE)
+            
+            if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:
+                # Legge solo la frequenza e il voltaggio se è in modalità singola
+                print(f"La frequenza è: {startF} kHz")
+                print(f"Il voltaggio è: {voltage} mV")
+            else:
+                # Legge stopF e freqPoints SOLO se è in modalità sweep
+                stopF = AcquisizioneDati.get_variable_value(self.stop_frequency,
+                                                            startF,
+                                                            AcquisizioneDati.MAX_FREQUENCY)
+                
+                freqPoints = AcquisizioneDati.get_variable_value(self.frequency_points,
+                                                                AcquisizioneDati.MIN_POINTS,
+                                                                AcquisizioneDati.MAX_POINTS)
+            
+                print(f"La frequenza iniziale è: {startF} kHz")
+                print(f"La frequenza finale è: {stopF} kHz")
+                print(f"Il numero di frequenze è: {freqPoints}")
+                print(f"Il voltaggio è: {voltage} mV")
+        
+        
+            print("La misurazione è iniziata")
+            
+            # Legge la misurazione (simulata) dalla entry
+            lettura = AcquisizioneDati.get_variable_value(self.lettura_impedenza,
+                                                          1,
+                                                          500)
+            self.numero_misurazioni += 1            # incremento il numero di misurazioni
+            
+            # Aggiorna il grafico, aggiungendo il nuovo punto
+            self.add_graph_point(lettura)
+            
+            # Aggiorna la tabella, aggiungendo la nuova misurazione
+            self.add_value_in_table(lettura)
+        
+        except (ValueError, tk.TclError):
+            # Cattura dell'eccezione per input non validi
+            # Gestione dell'errore mostrando una finestra di dialogo con un messaggio di errore
+            
+            messagebox.showerror("Errore", "Controlla i parametri inseriti!")
+            print("La misurazione è stata interrotta per errori")
+            
+    def stop_button_clicked(self):
+        has_to_stop = messagebox.askyesno(title="Interruzione misurazione",
+                                          message="Sei sicuro di voler interrompere la misurazione?")
+        if(has_to_stop):
+            self.stop_measurement()
+            print("La misurazione è stata interrotta")
+        else:
+            print("L'interruzione è stata annullata")
+    
+    def trash_button_clicked(self):
+        has_to_cancel = messagebox.askyesno(title="Cancellazione dati",
+                                            message="Sei sicuro di voler cancellare i dati?")
+        if(has_to_cancel):
+            self.cancel_data()
+            print("Le misurazioni sono state cancellate")
+        else:
+            print("La cancellazione è stata annullata")
+    
+    def toggle_frequency_mode_button_clicked(self):        
+        # Se la modalità corrente è a singola frequenza, passa a quella sweep e viceversa
+        if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:
+            self.show_sweep_frequency()
+        else:
+            self.show_single_frequency()
+        
+        
+    def show_single_frequency(self):
+        print("Attivata modalità a singola frequenza")
+        
+        self.current_frequency_mode = AcquisizioneDati.FREQUENZA_SINGOLA
+        self.toggle_frequency_mode_button.configure(text = "Frequenza singola")
+        
+        # Nasconde gli elementi non relativi alla modalità a singola frequenza
+        self.frequency_stop_label.grid_forget()
+        self.frequency_stop_entry.grid_forget()
+        self.frequency_points_label.grid_forget()
+        self.frequency_points_entry.grid_forget()
+        
+        # Elimina il nome di StartF
+        self.frequency_start_label.configure(text = "Frequency")
+        
+    def show_sweep_frequency(self):
+        print("Attivata modalità a frequenza sweep")
+        
+        self.current_frequency_mode = AcquisizioneDati.FREQUENZA_SWEEP
+        self.toggle_frequency_mode_button.configure(text = "Frequenza sweep")
+        
+        # Ripristina gli elementi relativi alla frequenza sweep
+        self.init_parameters_grid()
+        
+        # Ripristina la scritta "Start F"
+        self.frequency_start_label.configure(text = "StartF")
+        
+    def init_parameters_grid(self):
+        self.frequency_stop_label.grid(column=3, row=1, sticky="nesw")
+        self.frequency_stop_entry.grid(column=4, row=1, sticky="w")
+        
+        self.frequency_points_label.grid(column=5, row=1, sticky="nesw")
+        self.frequency_points_entry.grid(column=6, row=1, sticky="w")
+        
