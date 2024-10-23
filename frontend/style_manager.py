@@ -14,62 +14,97 @@ class StyleManager:
     medium_font = ("Helvetica", 15, "bold")
     small_font = ("Helvetica", 13, "bold")
     
-    foreground_color = "darkblue"
+    foreground_blue_color = "darkblue"
+    foreground_red_color = "red"
+    foreground_green_color = "green"
 
     # Definisco delle costanti per i nomi degli stili
     # (in modo da semplificare la modifica, senza dover modificare il nome dappertutto)
-    BIG_BUTTON_STYLE_NAME = "Big.TButton"
-    MEDIUM_BUTTON_STYLE_NAME = "Medium.TButton"
+    BIG_BLUE_BUTTON_STYLE_NAME = "BigBlue.TButton"
+    MEDIUM_BLUE_BUTTON_STYLE_NAME = "MediumBlue.TButton"
+    
+    BIG_GREEN_BUTTON_STYLE_NAME = "BigGreen.TButton"
+    
+    MEDIUM_RED_BUTTON_STYLE_NAME = "MediumRed.TButton"
     
     CUSTOM_LABELBUTTON_STYLE_NAME = "Custom2.TLabel"
     
     # Label
-    BIG_LABEL_STYLE_NAME = "Big.TLabel"
-    MEDIUM_LABEL_STYLE_NAME = "Medium.TLabel"
-    SMALL_LABEL_STYLE_NAME = "Small.TLabel"
+    BIG_BLUE_LABEL_STYLE_NAME = "BigBlue.TLabel"
+    MEDIUM_BLUE_LABEL_STYLE_NAME = "MediumBlue.TLabel"
+    SMALL_BLUE_LABEL_STYLE_NAME = "SmallBlue.TLabel"
+    
+    SMALL_TREE_VIEW_STYLE_NAME = "Small.TreeView"
     
     # Entry
-    ENTRY_STYLE_NAME = "Custom.TEntry"
+    ENTRY_BLUE_STYLE_NAME = "CustomBlue.TEntry"
     
     @staticmethod
     def load_styles():
         style = ttk.Style()
 
         # BOTTONI
-        style.configure(StyleManager.BIG_BUTTON_STYLE_NAME,         # nome
+        style.configure(StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,         # nome
                         font=StyleManager.big_font,                 # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
                         padding=10
                         )
-        style.configure(StyleManager.MEDIUM_BUTTON_STYLE_NAME,      # nome
+        style.configure(StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,      # nome
+                        font=StyleManager.medium_font,                   # font
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
+                        padding=10
+                        )
+        
+        style.configure(StyleManager.BIG_GREEN_BUTTON_STYLE_NAME,         # nome
+                        font=StyleManager.big_font,                 # font
+                        foreground=StyleManager.foreground_green_color,   # colore testo
+                        padding=10
+                        )
+        
+        style.configure(StyleManager.MEDIUM_RED_BUTTON_STYLE_NAME,      # nome
                         font=StyleManager.medium_font,              # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_red_color,   # colore testo
                         padding=10
                         )
                 
         # LABEL
-        style.configure(StyleManager.BIG_LABEL_STYLE_NAME,          # nome
+        style.configure(StyleManager.BIG_BLUE_LABEL_STYLE_NAME,          # nome
                         font=StyleManager.big_font,                 # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
                         padding=(0,0,10,0)
                         )
-        style.configure(StyleManager.MEDIUM_LABEL_STYLE_NAME,          # nome
+        style.configure(StyleManager.MEDIUM_BLUE_LABEL_STYLE_NAME,          # nome
                         font=StyleManager.medium_font,                 # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
                         padding=(0,0,10,0)
                         )
-        style.configure(StyleManager.SMALL_LABEL_STYLE_NAME,        # nome
+        style.configure(StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,        # nome
                         font=StyleManager.small_font,               # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
                         padding=(0,0,10,0)
                         )
 
         # ENTRY
-        style.configure(StyleManager.ENTRY_STYLE_NAME,              # nome
+        style.configure(StyleManager.ENTRY_BLUE_STYLE_NAME,              # nome
                         font=StyleManager.medium_font,               # font
-                        foreground=StyleManager.foreground_color,   # colore testo
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
                         padding=10
                         )
+        
+        # TREE VIEW
+        style.configure(StyleManager.SMALL_TREE_VIEW_STYLE_NAME,          # nome
+                        font=StyleManager.medium_font,                 # font
+                        foreground=StyleManager.foreground_blue_color,   # colore testo
+                        padding=(0,0,10,0)
+                )
+        
+        style.configure("Treeview.Heading",
+                        font=StyleManager.small_font,
+                        foreground=StyleManager.foreground_blue_color)
+        
+        style.configure("Treeview",
+                        font=StyleManager.small_font,
+                        foreground=StyleManager.foreground_blue_color)
         
         # Definisco uno stile per la label che appare come un bottone
         style.configure(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,

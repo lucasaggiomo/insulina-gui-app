@@ -16,16 +16,32 @@ from tkinter import ttk
 from tabs import *
 from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
 from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
+import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
+from screeninfo import get_monitors
+
 
 class App(tk.Tk):
 
     # Costruttore che costruisce l'oggetto di tipo App
     def __init__(self): 
         super().__init__()
+        
+        # Imposta il protocollo per la chiusura della finestra
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Size iniziale della finestra
-        self.geometry("1300x800")
-        self.minsize(width=1200, height=600)
+        # Ottieni la risoluzione dello schermo
+        screen_width = get_monitors()[0].width
+        screen_height = get_monitors()[0].height
+
+        # Imposta la finestra al 80% della larghezza e al 80% dell'altezza dello schermo
+        window_width = int(screen_width * 0.8)
+        window_height = int(screen_height * 0.8)
+
+        # Imposta la geometria della finestra
+        self.geometry(f"{window_width}x{window_height}")
+        
+        self.minsize(width=1300,
+                     height=800)
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -38,6 +54,10 @@ class App(tk.Tk):
                 
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
+
+    def on_closing(self):
+        plt.close('all')  # Chiude tutte le figure matplotlib aperte
+        self.destroy()     # Chiude la finestra tkinter
 
 
     # Funzione per creare tutti i widgets della finestra
@@ -82,31 +102,31 @@ class App(tk.Tk):
         switch_tab_buttons.columnconfigure(2, weight=0)
 
         # Bottone per mostrare la schermata dell'acquisizione dati
-        show_dati_button = ttk.Button(switch_tab_buttons,
+        self.show_dati_button = ttk.Button(switch_tab_buttons,
                                       text="Acquisizione dati",
                                       width=20,
                                       padding=10,
-                                      style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                      style=StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,
                                       command=self.show_dati_button_clicked)
-        show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
+        self.show_dati_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
 
         # Bottone per mostrare la schermata dello stato macchina
-        show_macchina_button = ttk.Button(switch_tab_buttons,
+        self.show_macchina_button = ttk.Button(switch_tab_buttons,
                                           text="Stato macchina",
                                           width=20,
                                           padding=10,
-                                          style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                          style=StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,
                                           command=self.show_macchina_button_clicked)
-        show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
+        self.show_macchina_button.grid(column=1, row=0, padx=5, pady=5, sticky="nswe")
         
         # Bottone per mostrare la schermata dell'esportazione dati
-        show_esporta_button = ttk.Button(switch_tab_buttons,
+        self.show_esporta_button = ttk.Button(switch_tab_buttons,
                                          text="Esporta dati",
                                          width=20,
                                          padding=10,
-                                         style=StyleManager.BIG_BUTTON_STYLE_NAME,
+                                         style=StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,
                                          command=self.show_esporta_button_clicked)
-        show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
+        self.show_esporta_button.grid(column=2, row=0, padx=5, pady=5, sticky="nswe")
 
         return switch_tab_buttons
     
@@ -134,7 +154,7 @@ class App(tk.Tk):
         self.battery_percentage_value = 100.0
         # chiama un'ipotetica funzione che legge la percentuale di batteria
         self.battery_label = ttk.Label(status_frame,
-                                       style=StyleManager.MEDIUM_LABEL_STYLE_NAME,
+                                       style=StyleManager.MEDIUM_BLUE_LABEL_STYLE_NAME,
                                        compound="left",
                                        textvariable=self.battery_percentage_string)
         self.update_battery_percentage()
@@ -164,7 +184,8 @@ class App(tk.Tk):
         self.esporta_tab = EsportazioneDati(tab_manager)
         self.esporta_tab.grid(row=0,column=0, sticky="nsew")
 
-        self.dati_tab.tkraise()
+        # imposta Acquisizione Dati come schermata iniziale
+        self.show_dati_button_clicked()
         
         return tab_manager
     
@@ -184,14 +205,29 @@ class App(tk.Tk):
     # EVENTI BOTTONI
     def show_dati_button_clicked(self):
         self.dati_tab.tkraise()
+        
+        self.show_dati_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
         print("Schermata Acquisizione Dati selezionata")
 
     def show_macchina_button_clicked(self):
         self.macchina_tab.tkraise()
+        
+        self.show_macchina_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
         print("Schermata Stato Macchina selezionata")
         
     def show_esporta_button_clicked(self):
         self.esporta_tab.tkraise()
+        
+        self.show_esporta_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
         print("Schermata Esportazione Dati selezionata")
         
     def bluetooth_button_clicked(self):
