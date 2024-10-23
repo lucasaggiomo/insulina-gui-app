@@ -29,6 +29,9 @@ class AcquisizioneDati(tk.Frame):
     
     MIN_POINTS = 1
     MAX_POINTS = 1000
+
+    MIN_CICLI = 1
+    MAX_CICLI = 1000
     
     FREQUENZA_SINGOLA = False
     FREQUENZA_SWEEP = True
@@ -44,7 +47,7 @@ class AcquisizioneDati(tk.Frame):
 
         # definisco le colonne
         self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=1)
+        self.columnconfigure(1, weight=0)
 
         # definisco le righe
         self.rowconfigure(0, weight=0)
@@ -71,14 +74,14 @@ class AcquisizioneDati(tk.Frame):
                                    show='headings')
         value_table.grid_propagate(False)
         
-        value_table.heading('index', text='Numero misurazione')
+        value_table.heading('index', text='Numero misura')
         value_table.heading('modulo', text='Modulo [Ohm]')
         value_table.heading('fase', text='Fase [°]')
         
         # Definisce la larghezza delle colonne
-        value_table.column("index")
-        value_table.column("modulo")
-        value_table.column("fase")
+        value_table.column("index", width=150)
+        value_table.column("modulo", width=150)
+        value_table.column("fase", width=150)
 
         self.numero_misurazioni = 0
         
@@ -216,6 +219,22 @@ class AcquisizioneDati(tk.Frame):
                                   padding=(10,0,10,20))
         voltage_label.grid(column=0, row=2, sticky="nesw")
         
+        self.numero_cicli_label = ttk.Label(parameters_frame,
+                                           style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
+                                           text="Numero\ncicli",
+                                           anchor="e",
+                                           width=10)
+        
+        self.numero_cicli = tk.IntVar()
+        
+        self.numero_cicli_entry = ttk.Entry(parameters_frame,
+                                           style=StyleManager.ENTRY_BLUE_STYLE_NAME,
+                                           font=StyleManager.small_font,
+                                           textvariable=self.numero_cicli,
+                                           width=15,
+                                           validate="key",
+                                           validatecommand=vcmd_int)
+        
         self.voltage_value_label = ttk.Label(parameters_frame,
                                             style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
                                             text="Voltage",
@@ -290,18 +309,18 @@ class AcquisizioneDati(tk.Frame):
         # creo una entry per simulare l'input dalla board
         lettura_label = ttk.Label(bottom_bar_frame,
                                     style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
-                                    text="Lettura di impedenza\ndella board simulata\n(1 Ohm - 500 Ohm):",
+                                    text="Lettura simulata\n(1 Ohm - 500 Ohm):",
                                     anchor="w",
                                     padding=(10,0,10,0))
-        lettura_label.pack(side="left", fill="both", padx=30, pady=30)
+        lettura_label.pack(side="left", fill="both", padx=0, pady=0)
         
         self.lettura_impedenza = tk.DoubleVar()
         self.lettura_impedenza_entry = ttk.Entry(bottom_bar_frame,
                                           style=StyleManager.ENTRY_BLUE_STYLE_NAME,
                                           textvariable=self.lettura_impedenza,
                                           font=StyleManager.small_font,
-                                          width=15)
-        self.lettura_impedenza_entry.pack(side="left", fill="both", padx=30, pady=30)
+                                          width=5)
+        self.lettura_impedenza_entry.pack(side="left", fill="both", padx=0, pady=20)
         
         self.lettura_impedenza.set(1)   # inizializzo a 1
         
@@ -435,6 +454,7 @@ class AcquisizioneDati(tk.Frame):
         self.start_frequency.set(AcquisizioneDati.MIN_FREQUENCY)
         self.stop_frequency.set(AcquisizioneDati.MIN_FREQUENCY)
         self.frequency_points.set(AcquisizioneDati.MIN_POINTS)
+        self.numero_cicli.set(AcquisizioneDati.MIN_CICLI)
         self.voltage_value.set(AcquisizioneDati.MIN_VOLTAGE)
 
     def stop_measurement(self):
@@ -459,9 +479,9 @@ class AcquisizioneDati(tk.Frame):
             if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:
                 # Legge solo la frequenza e il voltaggio se è in modalità singola
                 print(f"La frequenza è: {startF} kHz")
-                print(f"Il voltaggio è: {voltage} mV")
+                print(f"L'ampiezza del segnale di stimolazione è: {voltage} mV")
             else:
-                # Legge stopF e freqPoints SOLO se è in modalità sweep
+                # Legge stopF, freqPoints e numeroCicli SOLO se è in modalità sweep
                 stopF = AcquisizioneDati.get_variable_value(self.stop_frequency,
                                                             startF,
                                                             AcquisizioneDati.MAX_FREQUENCY)
@@ -469,11 +489,16 @@ class AcquisizioneDati(tk.Frame):
                 freqPoints = AcquisizioneDati.get_variable_value(self.frequency_points,
                                                                 AcquisizioneDati.MIN_POINTS,
                                                                 AcquisizioneDati.MAX_POINTS)
+                
+                numeroCicli = AcquisizioneDati.get_variable_value(self.numero_cicli,
+                                                                AcquisizioneDati.MIN_CICLI,
+                                                                AcquisizioneDati.MAX_CICLI)
             
                 print(f"La frequenza iniziale è: {startF} kHz")
                 print(f"La frequenza finale è: {stopF} kHz")
-                print(f"Il numero di frequenze è: {freqPoints}")
-                print(f"Il voltaggio è: {voltage} mV")
+                print(f"Il numero di punti delle frequenze è: {freqPoints}")
+                print(f"Il numero di cicli è: {numeroCicli}")
+                print(f"L'ampiezza del segnale di stimolazione è: {voltage} mV")
         
         
             print("La misurazione è iniziata")
@@ -534,6 +559,8 @@ class AcquisizioneDati(tk.Frame):
         self.frequency_stop_entry.grid_forget()
         self.frequency_points_label.grid_forget()
         self.frequency_points_entry.grid_forget()
+        self.numero_cicli_label.grid_forget()
+        self.numero_cicli_entry.grid_forget()
         
         # Elimina il nome di StartF
         self.frequency_start_label.configure(text = "Frequency")
@@ -556,4 +583,7 @@ class AcquisizioneDati(tk.Frame):
         
         self.frequency_points_label.grid(column=5, row=1, sticky="nesw")
         self.frequency_points_entry.grid(column=6, row=1, sticky="w")
+
+        self.numero_cicli_label.grid(column=5, row=2, sticky="nesw")
+        self.numero_cicli_entry.grid(column=6, row=2, sticky="w")
         

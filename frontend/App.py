@@ -40,8 +40,8 @@ class App(tk.Tk):
         # Imposta la geometria della finestra
         self.geometry(f"{window_width}x{window_height}")
         
-        self.minsize(width=int(screen_width * 0.5),
-                     height=int(screen_width * 0.3))
+        self.minsize(width=1300,
+                     height=800)
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
