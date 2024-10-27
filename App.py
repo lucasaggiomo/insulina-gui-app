@@ -63,6 +63,7 @@ class App(tk.Tk):
 
     def on_closing(self):
         plt.close('all')  # Chiude tutte le figure matplotlib aperte
+        
         self.destroy()     # Chiude la finestra tkinter
 
 
@@ -238,38 +239,86 @@ class App(tk.Tk):
         
     # Function to handle the scanning with filters and threading
     def scan_button_click(self):
+        # ricerca i dispositivi in maniera concorrente
+        scanner = threading.Thread(target=self.scanning)
+        scanner.start()
+
+    def scanning(self):
         target_name = ""
         target_address = ""
     
-    
-        self.devices_list.delete(1.0, tk.END)
-    
-    
-        # Start a new thread to run the async scan
-        scan_thread = threading.Thread(target=bluetooth.run_scan_thread, args=(target_name, target_address, self.devices_list))
-        scan_thread.start()    
+        # svuoto la lista
+        self.devices = []
         
+        # attivo la scansione dei dispositivi
+        scan_thread = threading.Thread(target=bluetooth.run_scan_thread,
+                                       args=(target_name, target_address, self.devices, self.status_text))
+        scan_thread.start()
+        scan_thread.join()
+        
+        
+        # aggiorno la lista
+        self.aggiorna_bluetooth_treeview()
+        # nomi_dispositivi = [f'{device['name']}: {device['address']}' for device in self.devices]
+        # self.devices_list_variable.set(nomi_dispositivi)
+        
+    def reset_bluetooth_treeview(self):
+        # Rimuove tutti gli elementi esistenti dalla Treeview
+        for item in self.devices_tree.get_children():
+            self.devices_tree.delete(item)
+            
+    def aggiorna_bluetooth_treeview(self):
+        # resetta la treeview
+        self.reset_bluetooth_treeview()
+
+        # Inserisce i nuovi dati dalla lista self.devices
+        for device in self.devices:
+            self.devices_tree.insert("", tk.END, values=(device["name"], device["address"]))
+            
     def bluetooth_button_clicked(self):
         print("Bottone bluetooth clickato")
         # bluetooth.start_scan()
         
-        nuova_finestra = tk.Toplevel(self)  # Crea una nuova finestra
-        nuova_finestra.title("Bluetooth devices")
-        nuova_finestra.geometry("500x800")  # Imposta la dimensione della finestra
+        bluetooth_window = tk.Toplevel(self)  # Crea una nuova finestra
+        bluetooth_window.title("Ricerca bluetooth")
+        bluetooth_window.geometry("500x800")  # Imposta la dimensione della finestra
+        bluetooth_window.minsize(width=400, height=400)
 
         # Aggiungi un'etichetta nella nuova finestra
         
         # Aggiungi un pulsante per chiudere la nuova finestra
-        scan_button = tk.Button(nuova_finestra, text="Ricerca", command=self.scan_button_click)
-        scan_button.pack(pady=10)
-        # Scrolled text box to display the scan results
-        # display_box = scrolledtext.ScrolledText(self, width=60, height=20)
-        # display_box.grid(column=0, row=3, columnspan=2)
+        scan_button = ttk.Button(bluetooth_window,
+                                 text="Ricerca",
+                                 style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
+                                 command=self.scan_button_click)
+        scan_button.pack(side=tk.TOP, pady=(50,10))
+
+        self.status_text = tk.StringVar(value="Clicca il tasto Ricerca per cercare la tua board")
+        status_label = ttk.Label(bluetooth_window,
+                                 textvariable=self.status_text,
+                                 justify=tk.CENTER,
+                                 style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
+        status_label.pack(side=tk.TOP)
         
-        self.devices_list = tk.Listbox(nuova_finestra)
-        self.devices_list.pack(expand = True)
+        self.devices = []
         
- 
+        # Crea una Treeview con due colonne
+        self.devices_tree = ttk.Treeview(bluetooth_window,
+                                         columns=("name", "address"),
+                                         show="headings")
+        
+        # Imposta le intestazioni delle colonne
+        self.devices_tree.heading("name", text="Nome Dispositivo", anchor=tk.W)
+        self.devices_tree.heading("address", text="Indirizzo", anchor=tk.W)
+
+        # Definisci la larghezza delle colonne (opzionale)
+        self.devices_tree.column("name", anchor=tk.W, width=150)
+        self.devices_tree.column("address", anchor=tk.W, width=200)
+
+        self.aggiorna_bluetooth_treeview()
+
+        # Posiziona la Treeview nella finestra
+        self.devices_tree.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
         
 
 if __name__ == "__main__":
