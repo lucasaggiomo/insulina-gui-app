@@ -249,6 +249,7 @@ class App(tk.Tk):
     
         # svuoto la lista
         self.devices = []
+        self.reset_bluetooth_treeview()
         
         # attivo la scansione dei dispositivi
         scan_thread = threading.Thread(target=bluetooth.run_scan_thread,
