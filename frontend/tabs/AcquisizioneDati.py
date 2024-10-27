@@ -13,8 +13,8 @@ from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg   # Per integrare il grafico in Tkinter
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 
-from image_manager import ImageManager
-from style_manager import StyleManager
+from frontend.image_manager import ImageManager
+from frontend.style_manager import StyleManager
         
 # Definisco la classe AcquisizioneDati, che eredita da tk.Frame
 class AcquisizioneDati(tk.Frame):

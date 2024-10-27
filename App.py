@@ -13,11 +13,17 @@ import tkinter as tk
 from tkinter import ttk
 
 # Importo altre classi
-from tabs import *
-from image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
-from style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
+import frontend as ft
+import backend as bk
+
+from frontend.tabs import *
+from frontend.image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
+from frontend.style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 from screeninfo import get_monitors
+from backend import bluetooth
+from tkinter import scrolledtext
+import threading
 
 
 class App(tk.Tk):
@@ -230,8 +236,41 @@ class App(tk.Tk):
         
         print("Schermata Esportazione Dati selezionata")
         
+    # Function to handle the scanning with filters and threading
+    def scan_button_click(self):
+        target_name = ""
+        target_address = ""
+    
+    
+        self.devices_list.delete(1.0, tk.END)
+    
+    
+        # Start a new thread to run the async scan
+        scan_thread = threading.Thread(target=bluetooth.run_scan_thread, args=(target_name, target_address, self.devices_list))
+        scan_thread.start()    
+        
     def bluetooth_button_clicked(self):
         print("Bottone bluetooth clickato")
+        # bluetooth.start_scan()
+        
+        nuova_finestra = tk.Toplevel(self)  # Crea una nuova finestra
+        nuova_finestra.title("Bluetooth devices")
+        nuova_finestra.geometry("500x800")  # Imposta la dimensione della finestra
+
+        # Aggiungi un'etichetta nella nuova finestra
+        
+        # Aggiungi un pulsante per chiudere la nuova finestra
+        scan_button = tk.Button(nuova_finestra, text="Ricerca", command=self.scan_button_click)
+        scan_button.pack(pady=10)
+        # Scrolled text box to display the scan results
+        # display_box = scrolledtext.ScrolledText(self, width=60, height=20)
+        # display_box.grid(column=0, row=3, columnspan=2)
+        
+        self.devices_list = tk.Listbox(nuova_finestra)
+        self.devices_list.pack(expand = True)
+        
+ 
+        
 
 if __name__ == "__main__":
     app = App() # invoco il costruttore

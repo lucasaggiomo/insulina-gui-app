@@ -9,8 +9,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-from image_manager import ImageManager
-from style_manager import StyleManager
+from frontend.image_manager import ImageManager
+from frontend.style_manager import StyleManager
 
 # Definisco la classe EsportazioneDati, che eredita da tk.Frame
 class EsportazioneDati(tk.Frame):
