@@ -3,6 +3,7 @@ import threading
 import tkinter as tk
 from tkinter import scrolledtext
 from bleak import BleakScanner
+from bleak import BleakClient
 from bleak.exc import BleakError
 import datetime
 import os
