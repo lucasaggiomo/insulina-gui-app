@@ -81,12 +81,12 @@ def run_scan_thread(target_name, target_address, items, status_var):
 
 async def connect_to_device(device_name, device_address, status_var):
     try:
+        status_var.set(f"Connessione a {device_name}...")
+        
         async with BleakClient(device_address) as client:
             # Controlla se ci si è connessi correttamente
-            status_var.set(f"Connessione a {device_name}...")
             
-            connected = await client.is_connected()
-            if connected:
+            if client.is_connected:
                 status_var.set(f"Connesso a {device_name}")
                 return True
             else:
