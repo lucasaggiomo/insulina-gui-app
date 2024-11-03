@@ -8,8 +8,7 @@ from bleak.exc import BleakError
 import datetime
 import os
 import sys
- 
- 
+
 # Function to start scanning for Bluetooth devices
 async def start_scan(target_name, target_address, items, status_var):
     try:
@@ -41,8 +40,6 @@ async def start_scan(target_name, target_address, items, status_var):
     except Exception as e:
         print(f"Unexpected error: {e}\n")
         status_var.set(f"Unexpected error: {e}\nControlla se il bluetooth è attivo")
-        
- 
  
 # aggiunge il device alla lista
 def add_device(device, devices):
@@ -66,3 +63,43 @@ def matches_filter(device, target_name, target_address):
 # esecuzione asincrona della scansione
 def run_scan_thread(target_name, target_address, items, status_var):
    asyncio.run(start_scan(target_name, target_address, items, status_var))
+   
+# def connect_to_device(device_name, device_address, status_var):
+#     # Connessione al dispositivo BLE
+#     try:
+#         status_var.set(f"Connessione a {device_name}...")
+        
+#         client = BleakClient(device_address)
+        
+#         # Connessione asincrona
+#         asyncio.run(client.connect())
+        
+#         status_var.set(f"Connesso a {device_name}")
+#     except Exception as e:
+#         status_var.set(f"Errore di connessione: {str(e)}")
+    
+
+async def connect_to_device(device_name, device_address, status_var):
+    try:
+        async with BleakClient(device_address) as client:
+            # Controlla se ci si è connessi correttamente
+            status_var.set(f"Connessione a {device_name}...")
+            
+            connected = await client.is_connected()
+            if connected:
+                status_var.set(f"Connesso a {device_name}")
+                return True
+            else:
+                status_var.set(f"Impossibile connettersi a {device_address}")
+                return False
+            
+    except BleakError as e:
+        status_var.set(f"Errore di connessione: {e}")
+        return False
+    
+    except Exception as e:
+        status_var.set(f"Errore inaspettato: {e}")
+        return False
+
+def run_connection_thread(device_name, device_address, status_var):
+    asyncio.run(connect_to_device(device_name, device_address, status_var))

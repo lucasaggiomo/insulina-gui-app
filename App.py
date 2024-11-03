@@ -208,41 +208,7 @@ class App(tk.Tk):
     # Questo metodo legge la percentuale di batteria della board
     def read_board_battery_percentage(self):
         return 74.0      # percentuale fittizia
-        
-    # EVENTI BOTTONI
-    def show_dati_button_clicked(self):
-        self.dati_tab.tkraise()
-        
-        self.show_dati_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
-        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        
-        print("Schermata Acquisizione Dati selezionata")
-
-    def show_macchina_button_clicked(self):
-        self.macchina_tab.tkraise()
-        
-        self.show_macchina_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
-        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        
-        print("Schermata Stato Macchina selezionata")
-        
-    def show_esporta_button_clicked(self):
-        self.esporta_tab.tkraise()
-        
-        self.show_esporta_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
-        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
-        
-        print("Schermata Esportazione Dati selezionata")
-        
-    # Function to handle the scanning with filters and threading
-    def scan_button_click(self):
-        # ricerca i dispositivi in maniera concorrente
-        scanner = threading.Thread(target=self.scanning)
-        scanner.start()
-
+    
     def scanning(self):
         target_name = ""
         target_address = ""
@@ -319,8 +285,71 @@ class App(tk.Tk):
         self.aggiorna_bluetooth_treeview()
 
         # Posiziona la Treeview nella finestra
-        self.devices_tree.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
+        self.devices_tree.pack(expand=True, fill=tk.BOTH, padx=20)
+                
+        scan_button = ttk.Button(bluetooth_window,
+                                 text="Connetti",
+                                 style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
+                                 command=self.connect_device_click)
+        scan_button.pack(side=tk.TOP, pady=10)
         
+        self.connection_status_text = tk.StringVar(value="Seleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
+        connection_status_label = ttk.Label(bluetooth_window,
+                                            textvariable=self.connection_status_text,
+                                            justify=tk.CENTER,
+                                            style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
+        connection_status_label.pack(side=tk.TOP, pady=(0, 10))
+        
+    # EVENTI BOTTONI
+    def show_dati_button_clicked(self):
+        self.dati_tab.tkraise()
+        
+        self.show_dati_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
+        print("Schermata Acquisizione Dati selezionata")
+
+    def show_macchina_button_clicked(self):
+        self.macchina_tab.tkraise()
+        
+        self.show_macchina_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_esporta_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
+        print("Schermata Stato Macchina selezionata")
+        
+    def show_esporta_button_clicked(self):
+        self.esporta_tab.tkraise()
+        
+        self.show_esporta_button.configure(style = StyleManager.BIG_GREEN_BUTTON_STYLE_NAME)
+        self.show_macchina_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
+        
+        print("Schermata Esportazione Dati selezionata")
+        
+    # Function to handle the scanning with filters and threading
+    def scan_button_click(self):
+        # ricerca i dispositivi in maniera concorrente
+        scanner = threading.Thread(target=self.scanning)
+        scanner.start()
+        
+    def connect_device_click(self):
+        selected_item = self.devices_tree.selection()
+        if not selected_item:
+            self.connection_status_text.set("Nessun dispositivo selezionato\nSeleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
+            return
+
+        # Ottieni l'indirizzo del dispositivo selezionato
+        device_info = self.devices_tree.item(selected_item, "values")
+        device_name = device_info[0]     # Il nome è nella prima colonna
+        device_address = device_info[1]  # L'indirizzo è nella seconda colonna
+
+        bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text)
+        
+        print(f"Indirizzo selezionato: %s", device_address)
+
+
 
 if __name__ == "__main__":
     app = App() # invoco il costruttore
