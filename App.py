@@ -209,7 +209,7 @@ class App(tk.Tk):
     def read_board_battery_percentage(self):
         return 74.0      # percentuale fittizia
     
-    def scanning(self):
+    def scanning_devices(self):
         target_name = ""
         target_address = ""
     
@@ -228,6 +228,12 @@ class App(tk.Tk):
         self.aggiorna_bluetooth_treeview()
         # nomi_dispositivi = [f'{device['name']}: {device['address']}' for device in self.devices]
         # self.devices_list_variable.set(nomi_dispositivi)
+    
+    def connecting_to_device(self, device_name, device_address):
+        connection_thread = threading.Thread(target=bluetooth.run_connection_thread,
+                                             args=(device_name, device_address, self.connection_status_text))
+        connection_thread.start()
+        connection_thread.join()
         
     def reset_bluetooth_treeview(self):
         # Rimuove tutti gli elementi esistenti dalla Treeview
@@ -331,7 +337,7 @@ class App(tk.Tk):
     # Function to handle the scanning with filters and threading
     def scan_button_click(self):
         # ricerca i dispositivi in maniera concorrente
-        scanner = threading.Thread(target=self.scanning)
+        scanner = threading.Thread(target=self.scanning_devices)
         scanner.start()
         
     def connect_device_click(self):
@@ -344,10 +350,12 @@ class App(tk.Tk):
         device_info = self.devices_tree.item(selected_item, "values")
         device_name = device_info[0]     # Il nome è nella prima colonna
         device_address = device_info[1]  # L'indirizzo è nella seconda colonna
-
-        bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text)
         
-        print(f"Indirizzo selezionato: %s", device_address)
+        connection = threading.Thread(target=self.connecting_to_device,
+                                      args=(device_name, device_address))
+        connection.start()
+        
+        print(f"Indirizzo selezionato: {device_address}")
 
 
 
