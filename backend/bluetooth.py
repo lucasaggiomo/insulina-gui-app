@@ -108,10 +108,15 @@ async def communicate(client):
     # Iscrizione alle notifiche
     await client.start_notify(CHARACTERISTIC_UUID, notification_handler)
     
-    # Invio di un comando (es. il byte 0x01 rappresenta "start")
-    command = b'\x01'
+    # La stringa che vuoi inviare
+    message = "Ciao, dispositivo BLE!"
+
+    # Codifica la stringa in UTF-8 per ottenere una sequenza di byte
+    command = message.encode('utf-8')
+
+    # Invio del comando codificato in UTF-8
     await client.write_gatt_char(CHARACTERISTIC_UUID, command)
-    print("Comando inviato: Start")
+    print(f"Comando inviato: {message}")
 
     # Tempo di attesa per ricevere risposte (ad esempio 10 secondi)
     await asyncio.sleep(10)
