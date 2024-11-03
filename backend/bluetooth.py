@@ -9,6 +9,14 @@ import datetime
 import os
 import sys
 
+# esecuzione asincrona della scansione
+def run_scan_thread(target_name, target_address, items, status_var):
+   asyncio.run(start_scan(target_name, target_address, items, status_var))
+   
+# esecuzione asincrona nella connessione
+def run_connection_thread(device_name, device_address, status_var):
+    asyncio.run(connect_to_device(device_name, device_address, status_var))
+    
 # Function to start scanning for Bluetooth devices
 async def start_scan(target_name, target_address, items, status_var):
     try:
@@ -59,39 +67,26 @@ def log_device(device):
 def matches_filter(device, target_name, target_address):
    return ((target_name.lower() in (device.name or "").lower()) if target_name else True) and \
           ((target_address.lower() in device.address.lower()) if target_address else True)
- 
-# esecuzione asincrona della scansione
-def run_scan_thread(target_name, target_address, items, status_var):
-   asyncio.run(start_scan(target_name, target_address, items, status_var))
-   
-# def connect_to_device(device_name, device_address, status_var):
-#     # Connessione al dispositivo BLE
-#     try:
-#         status_var.set(f"Connessione a {device_name}...")
-        
-#         client = BleakClient(device_address)
-        
-#         # Connessione asincrona
-#         asyncio.run(client.connect())
-        
-#         status_var.set(f"Connesso a {device_name}")
-#     except Exception as e:
-#         status_var.set(f"Errore di connessione: {str(e)}")
-    
+
+
+
 
 async def connect_to_device(device_name, device_address, status_var):
     try:
         status_var.set(f"Connessione a {device_name}...")
         
-        async with BleakClient(device_address) as client:
-            # Controlla se ci si è connessi correttamente
+        # effettua la connessione
+        client = BleakClient(device_address)
+        await client.connect()
             
-            if client.is_connected:
-                status_var.set(f"Connesso a {device_name}")
-                return True
-            else:
-                status_var.set(f"Impossibile connettersi a {device_address}")
-                return False
+        # Controlla se ci si è connessi correttamente
+        if client.is_connected:
+            status_var.set(f"Connesso a {device_name}")
+            await communicate(client)
+            return True
+        else:
+            status_var.set(f"Impossibile connettersi a {device_address}")
+            return False
             
     except BleakError as e:
         status_var.set(f"Errore di connessione: {e}")
@@ -100,6 +95,41 @@ async def connect_to_device(device_name, device_address, status_var):
     except Exception as e:
         status_var.set(f"Errore inaspettato: {e}")
         return False
+    
+# UUID del servizio e della caratteristica
+SERVICE_UUID = "D0611E78-BBB4-4591-A5F8-487910AE4366"
+CHARACTERISTIC_UUID = "8667556C-9A37-4C91-84ED-54EE27D90049"
 
-def run_connection_thread(device_name, device_address, status_var):
-    asyncio.run(connect_to_device(device_name, device_address, status_var))
+async def communicate(client):
+    # Funzione di callback per le notifiche
+    def notification_handler(sender, data):
+        print(f"Notifica ricevuta: {data}")
+
+    # Iscrizione alle notifiche
+    await client.start_notify(CHARACTERISTIC_UUID, notification_handler)
+    
+    # Invio di un comando (es. il byte 0x01 rappresenta "start")
+    command = b'\x01'
+    await client.write_gatt_char(CHARACTERISTIC_UUID, command)
+    print("Comando inviato: Start")
+
+    # Tempo di attesa per ricevere risposte (ad esempio 10 secondi)
+    await asyncio.sleep(10)
+
+
+# async def send_command(client, command):
+#     try:
+#         # Scrive il comando sulla caratteristica specifica
+#         await client.write_gatt_char(UUID_COMANDO, command)
+#     except BleakError as e:
+#         print(f"Errore durante l'invio del comando: {e}")
+
+# async def start_device(client):
+#     # Comando specifico per avviare il dispositivo
+#     command = b'\x01'  # Esempio: il byte 0x01 rappresenta "start"
+#     await send_command(client, command)
+
+# async def stop_device(client):
+#     # Comando specifico per fermare il dispositivo
+#     command = b'\x02'  # Esempio: il byte 0x02 rappresenta "stop"
+#     await send_command(client, command)
