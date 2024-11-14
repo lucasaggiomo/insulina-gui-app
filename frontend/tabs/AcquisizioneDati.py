@@ -37,8 +37,14 @@ class AcquisizioneDati(tk.Frame):
     FREQUENZA_SWEEP = True
     
     # Costruttore che costruisce l'oggetto di tipo App
-    def __init__(self, parent_frame): 
+    def __init__(self, parent_frame, send_start_to_board, send_stop_to_board): 
         super().__init__(parent_frame)
+        
+        # inizializza le funzioni da invocare per mandare i comandi al client (gestiti nella classe App)
+        self.send_start_to_board = send_start_to_board
+        self.send_stop_to_board = send_stop_to_board
+        
+        self.is_measuring = False
         
         self.create_widgets()
     
@@ -456,14 +462,8 @@ class AcquisizioneDati(tk.Frame):
         self.frequency_points.set(AcquisizioneDati.MIN_POINTS)
         self.numero_cicli.set(AcquisizioneDati.MIN_CICLI)
         self.voltage_value.set(AcquisizioneDati.MIN_VOLTAGE)
-
-    def stop_measurement(self):
-        print("Interruzione della misurazione...")
         
-        
-    # COMANDI BOTTONI
-    
-    def start_button_clicked(self):
+    def print_parameters(self):
         try:
             # Leggiamo i valori degli oggetti entry, verificando che siano compresi nell'intervallo giusto
             # Eseguiamo questo blocco di codice in un try, in modo da gestire eventuali errori nel blocco except
@@ -500,33 +500,57 @@ class AcquisizioneDati(tk.Frame):
                 print(f"Il numero di cicli è: {numeroCicli}")
                 print(f"L'ampiezza del segnale di stimolazione è: {voltage} mV")
         
-        
-            print("La misurazione è iniziata")
-            
-            # Legge la misurazione (simulata) dalla entry
-            lettura = AcquisizioneDati.get_variable_value(self.lettura_impedenza,
-                                                          1,
-                                                          500)
-            self.numero_misurazioni += 1            # incremento il numero di misurazioni
-            
-            # Aggiorna il grafico, aggiungendo il nuovo punto
-            self.add_graph_point(lettura)
-            
-            # Aggiorna la tabella, aggiungendo la nuova misurazione
-            self.add_value_in_table(lettura)
-        
         except (ValueError, tk.TclError):
             # Cattura dell'eccezione per input non validi
             # Gestione dell'errore mostrando una finestra di dialogo con un messaggio di errore
             
             messagebox.showerror("Errore", "Controlla i parametri inseriti!")
-            print("La misurazione è stata interrotta per errori")
+            
+            # rilancia l'eccezione catturata nell'except (equivale a throw)
+            raise
+
+    # Gestisce l'arrivo di una nuova lettura, aggiungendo il valore al grafico e alla tabella
+    def handle_new_measurement(self, lettura):
+        # # Legge la misurazione (simulata) dalla entry
+        # lettura = AcquisizioneDati.get_variable_value(self.lettura_impedenza,
+        #                                                 1,
+        #                                                 500)
+            
+        self.numero_misurazioni += 1            # incremento il numero di misurazioni
+        
+        # Aggiorna il grafico, aggiungendo il nuovo punto
+        self.add_graph_point(lettura)
+        
+        # Aggiorna la tabella, aggiungendo la nuova lettura
+        self.add_value_in_table(lettura)
+    
+    # COMANDI BOTTONI
+    def start_button_clicked(self):
+        try:
+            self.print_parameters()
+            
+            # Legge la misurazione dal client
+            if not self.send_start_to_board():
+                return
+            
+            print("La misurazione è iniziata")
+            self.is_measuring = True
+        
+        except (ValueError, tk.TclError):
+            # Cattura dell'eccezione per input non validi            
+            print("La misurazione non è iniziata a causa di errori")
             
     def stop_button_clicked(self):
+        if not self.is_measuring:
+            messagebox.showwarning(title="Avviso",
+                                   message="La misurazione non è stata terminata perché non c'è alcuna misurazione in corso")
+            return
+        
         has_to_stop = messagebox.askyesno(title="Interruzione misurazione",
                                           message="Sei sicuro di voler interrompere la misurazione?")
         if(has_to_stop):
-            self.stop_measurement()
+            self.send_stop_to_board()
+            self.is_measuring = False
             print("La misurazione è stata interrotta")
         else:
             print("L'interruzione è stata annullata")

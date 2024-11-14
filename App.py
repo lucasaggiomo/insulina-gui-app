@@ -23,7 +23,9 @@ import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 from screeninfo import get_monitors
 from backend import bluetooth
 from tkinter import scrolledtext
+from tkinter import messagebox
 import threading
+import asyncio
 
 
 class App(tk.Tk):
@@ -46,8 +48,7 @@ class App(tk.Tk):
         # Imposta la geometria della finestra
         self.geometry(f"{window_width}x{window_height}")
         
-        self.minsize(width=1300,
-                     height=800)
+        self.minsize(width=1300, height=800)
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -57,6 +58,8 @@ class App(tk.Tk):
 
         # Carico tutti gli stili dell'applicazione con la classe StyleManager
         StyleManager.load_styles()
+    
+        self.clientBLE = None
                 
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
@@ -76,7 +79,6 @@ class App(tk.Tk):
         # frame contenente il tab corrente (AcquisizioneDati, StatoMacchina o EsportazioneDati)
         tab_manager = self.create_tab_manager_frame()
         tab_manager.pack(side="bottom", fill="both", expand=True)
-
 
     # Crea la barra superiore del programma, contenente:
     #   - i bottoni per cambiare schermata nel tab_manager (FUNZIONE create_switch_tab_buttons)
@@ -150,6 +152,9 @@ class App(tk.Tk):
         status_frame.columnconfigure(0, weight=0)
         status_frame.columnconfigure(1, weight=0)
         
+        # variabile che indica se la finestra di bluetooth è aperta
+        # permette di prevenire l'apertura multipla di più finestre bluetooth
+        self.is_bluetooth_window_open = False
         bluetooth_button = ttk.Button(status_frame,
                                       width=10,
                                       image=ImageManager.bluetooth_image,
@@ -181,9 +186,14 @@ class App(tk.Tk):
         # Definisco la colonna dello status bar
         tab_manager.columnconfigure(0, weight=1)
 
-        self.dati_tab = AcquisizioneDati(tab_manager)
+        self.dati_tab = AcquisizioneDati(tab_manager,
+                                         self.send_start_to_board,
+                                         self.send_stop_to_board)
         self.dati_tab.grid(row=0,column=0, sticky="nsew")
         self.dati_tab.progress_value = 50
+        
+        # inizializza la funzione di gestione delle letture
+        bluetooth.notification_function_callback = lambda lettura: self.dati_tab.handle_new_measurement(lettura)
 
         self.macchina_tab = StatoMacchina(tab_manager)
         self.macchina_tab.grid(row=0,column=0, sticky="nsew")
@@ -195,7 +205,6 @@ class App(tk.Tk):
         self.show_dati_button_clicked()
         
         return tab_manager
-    
 
     # Aggiorna la percentuale di batteria
     def update_battery_percentage(self):
@@ -209,6 +218,7 @@ class App(tk.Tk):
     def read_board_battery_percentage(self):
         return 74.0      # percentuale fittizia
     
+    # SEZIONE BLUETOOTH
     def scanning_devices(self):
         target_name = ""
         target_address = ""
@@ -223,18 +233,21 @@ class App(tk.Tk):
         scan_thread.start()
         scan_thread.join()
         
-        
         # aggiorno la lista
         self.aggiorna_bluetooth_treeview()
         # nomi_dispositivi = [f'{device['name']}: {device['address']}' for device in self.devices]
         # self.devices_list_variable.set(nomi_dispositivi)
     
     def connecting_to_device(self, device_name, device_address):
-        connection_thread = threading.Thread(target=bluetooth.run_connection_thread,
-                                             args=(device_name, device_address, self.connection_status_text))
+        # crea un thread che invoca la funzione "bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text))"
+        # e poi assegna il risultato di questa funzione all'attributo self.clientBLE
+        connection_thread = threading.Thread(target=lambda:
+                                setattr(self, 'clientBLE',
+                                        bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text)))
+        
         connection_thread.start()
         connection_thread.join()
-        
+    
     def reset_bluetooth_treeview(self):
         # Rimuove tutti gli elementi esistenti dalla Treeview
         for item in self.devices_tree.get_children():
@@ -248,18 +261,29 @@ class App(tk.Tk):
         for device in self.devices:
             self.devices_tree.insert("", tk.END, values=(device["name"], device["address"]))
             
+    def on_bluetooth_window_closing(self, bluetooth_window):
+        self.is_bluetooth_window_open = False
+        bluetooth_window.destroy()
+    
     def bluetooth_button_clicked(self):
+        # esce dalla funzione se la finestra risulta già aperta
+        if self.is_bluetooth_window_open:
+            return
+        
+        self.is_bluetooth_window_open = True
         print("Bottone bluetooth clickato")
-        # bluetooth.start_scan()
         
         bluetooth_window = tk.Toplevel(self)  # Crea una nuova finestra
         bluetooth_window.title("Ricerca bluetooth")
         bluetooth_window.geometry("500x800")  # Imposta la dimensione della finestra
         bluetooth_window.minsize(width=400, height=400)
-
-        # Aggiungi un'etichetta nella nuova finestra
         
-        # Aggiungi un pulsante per chiudere la nuova finestra
+        # Imposto che alla chiusura della finestra la variabile is_bluetooth_window_open sia impostata a False
+        bluetooth_window.protocol("WM_DELETE_WINDOW", lambda: self.on_bluetooth_window_closing(bluetooth_window))
+
+        # Aggiungo un'etichetta nella nuova finestra
+        
+        # Aggiungo un pulsante per chiudere la nuova finestra
         scan_button = ttk.Button(bluetooth_window,
                                  text="Ricerca",
                                  style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
@@ -275,16 +299,16 @@ class App(tk.Tk):
         
         self.devices = []
         
-        # Crea una Treeview con due colonne
+        # Creo una Treeview con due colonne
         self.devices_tree = ttk.Treeview(bluetooth_window,
                                          columns=("name", "address"),
                                          show="headings")
         
-        # Imposta le intestazioni delle colonne
+        # Imposto le intestazioni delle colonne
         self.devices_tree.heading("name", text="Nome Dispositivo", anchor=tk.W)
         self.devices_tree.heading("address", text="Indirizzo", anchor=tk.W)
 
-        # Definisci la larghezza delle colonne (opzionale)
+        # Definisco la larghezza delle colonne (opzionale)
         self.devices_tree.column("name", anchor=tk.W, width=150)
         self.devices_tree.column("address", anchor=tk.W, width=200)
 
@@ -305,6 +329,64 @@ class App(tk.Tk):
                                             justify=tk.CENTER,
                                             style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
         connection_status_label.pack(side=tk.TOP, pady=(0, 10))
+            
+    def scan_button_click(self):
+        # ricerca i dispositivi in maniera concorrente
+        scanner = threading.Thread(target=self.scanning_devices)
+        scanner.start()
+        
+    def connect_device_click(self):
+        selected_item = self.devices_tree.selection()
+        if not selected_item:
+            self.connection_status_text.set("Nessun dispositivo selezionato\nSeleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
+            return
+
+        # Ottieni l'indirizzo del dispositivo selezionato
+        device_info = self.devices_tree.item(selected_item, "values")
+        device_name = device_info[0]     # Il nome è nella prima colonna
+        device_address = device_info[1]  # L'indirizzo è nella seconda colonna
+        
+        connection = threading.Thread(target=self.connecting_to_device,
+                                      args=(device_name, device_address))
+        connection.start()
+        
+        print(f"Dispositivo selezionato:\nnome: {device_name}, indirizzo MAC: {device_address}")
+
+    def send_start_to_board(self):
+        if self.clientBLE is None:
+            messagebox.showerror(title="Misurazione non iniziata",
+                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            return False
+        
+        print("Mando start alla board")
+        
+        # Crea un loop asincrono permanente
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+        
+        # Avvia il ciclo di eventi in un thread separato
+        threading.Thread(target=self.loop.run_forever, daemon=True).start()
+        
+        # Usa create_task per avviare start_board senza chiudere il loop
+        self.loop.create_task(bluetooth.start_board(self.clientBLE))
+        
+        # asyncio.run(bluetooth.start_board(self.clientBLE))
+        
+        return True
+        
+    def send_stop_to_board(self):
+        if self.clientBLE is None:
+            messagebox.showerror(title="Misurazione non terminata",
+                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            return False
+        
+        print("Mando end alla board")
+        
+        # Usa create_task per avviare stop_board senza chiudere il loop
+        self.loop.stop()
+        asyncio.run(bluetooth.stop_board(self.clientBLE))
+        
+        return True
         
     # EVENTI BOTTONI
     def show_dati_button_clicked(self):
@@ -333,31 +415,6 @@ class App(tk.Tk):
         self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
         
         print("Schermata Esportazione Dati selezionata")
-        
-    # Function to handle the scanning with filters and threading
-    def scan_button_click(self):
-        # ricerca i dispositivi in maniera concorrente
-        scanner = threading.Thread(target=self.scanning_devices)
-        scanner.start()
-        
-    def connect_device_click(self):
-        selected_item = self.devices_tree.selection()
-        if not selected_item:
-            self.connection_status_text.set("Nessun dispositivo selezionato\nSeleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
-            return
-
-        # Ottieni l'indirizzo del dispositivo selezionato
-        device_info = self.devices_tree.item(selected_item, "values")
-        device_name = device_info[0]     # Il nome è nella prima colonna
-        device_address = device_info[1]  # L'indirizzo è nella seconda colonna
-        
-        connection = threading.Thread(target=self.connecting_to_device,
-                                      args=(device_name, device_address))
-        connection.start()
-        
-        print(f"Indirizzo selezionato: {device_address}")
-
-
 
 if __name__ == "__main__":
     app = App() # invoco il costruttore
