@@ -17,6 +17,7 @@ class StyleManager:
     foreground_blue_color = "darkblue"
     foreground_red_color = "red"
     foreground_green_color = "green"
+    foreground_darkgreen_color = "darkgreen"
 
     # Definisco delle costanti per i nomi degli stili
     # (in modo da semplificare la modifica, senza dover modificare il nome dappertutto)
@@ -24,6 +25,9 @@ class StyleManager:
     MEDIUM_BLUE_BUTTON_STYLE_NAME = "MediumBlue.TButton"
     
     BIG_GREEN_BUTTON_STYLE_NAME = "BigGreen.TButton"
+    MEDIUM_GREEN_BUTTON_STYLE_NAME = "MediumGreen.TButton"
+    
+    MEDIUM_DARKGREEN_BUTTON_STYLE_NAME = "MediumDarkGreen.TButton"
     
     MEDIUM_RED_BUTTON_STYLE_NAME = "MediumRed.TButton"
     
@@ -66,7 +70,19 @@ class StyleManager:
                         foreground=StyleManager.foreground_red_color,   # colore testo
                         padding=10
                         )
-                
+        
+        style.configure(StyleManager.MEDIUM_GREEN_BUTTON_STYLE_NAME,      # nome
+                        font=StyleManager.medium_font,              # font
+                        foreground=StyleManager.foreground_green_color,   # colore testo
+                        padding=10
+                        )
+                     
+        style.configure(StyleManager.MEDIUM_DARKGREEN_BUTTON_STYLE_NAME,      # nome
+                        font=StyleManager.medium_font,              # font
+                        foreground=StyleManager.foreground_darkgreen_color,   # colore testo
+                        padding=10
+                        )
+           
         # LABEL
         style.configure(StyleManager.BIG_BLUE_LABEL_STYLE_NAME,          # nome
                         font=StyleManager.big_font,                 # font

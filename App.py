@@ -6,8 +6,6 @@
 # Ponticelli Lorenzo
 # Porcelli Nicola
 
-# Branch features
-
 # Importo la libreria tkinter
 import tkinter as tk
 from tkinter import ttk
@@ -22,7 +20,6 @@ from frontend.style_manager import StyleManager  # importo la classe StyleManage
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 from screeninfo import get_monitors
 from backend import bluetooth
-from tkinter import scrolledtext
 from tkinter import messagebox
 import threading
 import asyncio
@@ -66,6 +63,11 @@ class App(tk.Tk):
 
     def on_closing(self):
         plt.close('all')  # Chiude tutte le figure matplotlib aperte
+        
+        # self.stop_board(write_message = False)
+        
+        # if self.clientBLE:
+        #     threading.Thread(asyncio.run(self.clientBLE.disconnect())).start()
         
         self.destroy()     # Chiude la finestra tkinter
 
@@ -169,7 +171,7 @@ class App(tk.Tk):
                                        style=StyleManager.MEDIUM_BLUE_LABEL_STYLE_NAME,
                                        compound="left",
                                        textvariable=self.battery_percentage_string)
-        self.update_battery_percentage()
+        self.update_battery_percentage(100.0)
         self.battery_label.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         return status_frame
@@ -187,13 +189,14 @@ class App(tk.Tk):
         tab_manager.columnconfigure(0, weight=1)
 
         self.dati_tab = AcquisizioneDati(tab_manager,
-                                         self.send_start_to_board,
-                                         self.send_stop_to_board)
+                                         self.start_board,
+                                         self.stop_board)
         self.dati_tab.grid(row=0,column=0, sticky="nsew")
         self.dati_tab.progress_value = 50
         
-        # inizializza la funzione di gestione delle letture
-        bluetooth.notification_function_callback = lambda lettura: self.dati_tab.handle_new_measurement(lettura)
+        # inizializzo le funzioni riguardanti le notifiche
+        bluetooth.new_measurement_callback = lambda lettura: self.dati_tab.handle_new_measurement(lettura)
+        bluetooth.update_battery_level_callback = lambda lettura: self.update_battery_percentage(lettura)
 
         self.macchina_tab = StatoMacchina(tab_manager)
         self.macchina_tab.grid(row=0,column=0, sticky="nsew")
@@ -207,16 +210,11 @@ class App(tk.Tk):
         return tab_manager
 
     # Aggiorna la percentuale di batteria
-    def update_battery_percentage(self):
-        newPercentage = self.read_board_battery_percentage()
-        self.battery_percentage_value = newPercentage
-        self.battery_percentage_string.set(f"{newPercentage} %")
+    def update_battery_percentage(self, new_percentage):
+        self.battery_percentage_value = new_percentage
+        self.battery_percentage_string.set(f"{new_percentage} %")
         
-        self.battery_label.configure(image = ImageManager.get_battery_image(newPercentage))
-            
-    # Questo metodo legge la percentuale di batteria della board
-    def read_board_battery_percentage(self):
-        return 74.0      # percentuale fittizia
+        self.battery_label.configure(image = ImageManager.get_battery_image(new_percentage))
     
     # SEZIONE BLUETOOTH
     def scanning_devices(self):
@@ -247,6 +245,8 @@ class App(tk.Tk):
         
         connection_thread.start()
         connection_thread.join()
+        
+        self.start_battery_level_notify()        
     
     def reset_bluetooth_treeview(self):
         # Rimuove tutti gli elementi esistenti dalla Treeview
@@ -352,7 +352,7 @@ class App(tk.Tk):
         
         print(f"Dispositivo selezionato:\nnome: {device_name}, indirizzo MAC: {device_address}")
 
-    def send_start_to_board(self):
+    def start_board(self):
         if self.clientBLE is None:
             messagebox.showerror(title="Misurazione non iniziata",
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
@@ -370,24 +370,55 @@ class App(tk.Tk):
         # Usa create_task per avviare start_board senza chiudere il loop
         self.loop.create_task(bluetooth.start_board(self.clientBLE))
         
-        # asyncio.run(bluetooth.start_board(self.clientBLE))
-        
         return True
         
-    def send_stop_to_board(self):
+    def stop_board(self, write_message = True):
         if self.clientBLE is None:
-            messagebox.showerror(title="Misurazione non terminata",
-                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            if write_message:
+                messagebox.showerror(title="Misurazione non terminata",
+                                    message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
-        print("Mando end alla board")
+        if write_message:
+            print("Mando stop alla board")
         
-        # Usa create_task per avviare stop_board senza chiudere il loop
+        
         self.loop.stop()
         asyncio.run(bluetooth.stop_board(self.clientBLE))
         
         return True
         
+    def start_battery_level_notify(self):
+        if self.clientBLE is None:
+            # messagebox.showerror(title="Misurazione non iniziata",
+            #                     message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            return False
+        
+        print("Mando la richiesta di ricezione delle notifiche sulla percentuale di batteria della board")
+        
+        # Crea un loop asincrono permanente
+        self.battery_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.battery_loop)
+        
+        # Avvia il ciclo di eventi in un thread separato
+        threading.Thread(target=self.battery_loop.run_forever, daemon=True).start()
+        
+        # Usa create_task per avviare start_battery_level_notify senza chiudere il loop
+        self.battery_loop.create_task(bluetooth.start_battery_level_notify(self.clientBLE))
+        
+        return True
+    
+    def stop_battery_level_notify(self):
+        if self.clientBLE is None:
+            messagebox.showerror(title="Misurazione non terminata",
+                                    message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            return False
+        
+        print("Interrompo la ricezione della percentuale di batteria della board")
+        
+        self.battery_loop.stop()
+        asyncio.run(bluetooth.stop_battery_level_notify(self.clientBLE))
+    
     # EVENTI BOTTONI
     def show_dati_button_clicked(self):
         self.dati_tab.tkraise()

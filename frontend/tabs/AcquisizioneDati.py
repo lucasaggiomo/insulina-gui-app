@@ -37,12 +37,12 @@ class AcquisizioneDati(tk.Frame):
     FREQUENZA_SWEEP = True
     
     # Costruttore che costruisce l'oggetto di tipo App
-    def __init__(self, parent_frame, send_start_to_board, send_stop_to_board): 
+    def __init__(self, parent_frame, start_board, stop_board): 
         super().__init__(parent_frame)
         
         # inizializza le funzioni da invocare per mandare i comandi al client (gestiti nella classe App)
-        self.send_start_to_board = send_start_to_board
-        self.send_stop_to_board = send_stop_to_board
+        self.start_board = start_board
+        self.stop_board = stop_board
         
         self.is_measuring = False
         
@@ -142,7 +142,7 @@ class AcquisizioneDati(tk.Frame):
         parameters_frame.columnconfigure(4, weight=1)
         parameters_frame.columnconfigure(5, weight=1)
         parameters_frame.columnconfigure(6, weight=1)
-        
+         
         parameters_frame.rowconfigure(0, weight=1)
         parameters_frame.rowconfigure(1, weight=1)
         parameters_frame.rowconfigure(2, weight=1)
@@ -152,7 +152,7 @@ class AcquisizioneDati(tk.Frame):
                                                        text="Frequenza singola",
                                                        width=20,
                                                        padding=10,
-                                                       style=StyleManager.MEDIUM_RED_BUTTON_STYLE_NAME,
+                                                       style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
                                                        command=self.toggle_frequency_mode_button_clicked)
         self.toggle_frequency_mode_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         self.current_frequency_mode = AcquisizioneDati.FREQUENZA_SINGOLA
@@ -530,7 +530,7 @@ class AcquisizioneDati(tk.Frame):
             self.print_parameters()
             
             # Legge la misurazione dal client
-            if not self.send_start_to_board():
+            if not self.start_board():
                 return
             
             print("La misurazione è iniziata")
@@ -549,7 +549,7 @@ class AcquisizioneDati(tk.Frame):
         has_to_stop = messagebox.askyesno(title="Interruzione misurazione",
                                           message="Sei sicuro di voler interrompere la misurazione?")
         if(has_to_stop):
-            self.send_stop_to_board()
+            self.stop_board()
             self.is_measuring = False
             print("La misurazione è stata interrotta")
         else:
