@@ -51,6 +51,7 @@ class BLEClient:
             self.devices_found = await BleakScanner.discover(timeout=3)
     
             if self.devices_found:
+                self.log_message("Seleziona un dispositivo e clicca \"Connetti\" per connetterti")
                 # stampa nel terminale i dispositivi trovati
                 self.log_devices_in_terminal()
         
@@ -73,16 +74,18 @@ class BLEClient:
     # si connette al dispositivo con indirizzo device_address
     # al termine della connessione, in caso di successo esegue la funzione on_success
     async def connect_to_device(self, device_name, device_address, on_success=None):
-        """Connetti al dispositivo specificato."""
         try:
             self.log_message(f"Connessione a {device_name} in corso...")
             
+            # si disconnette dal precedente dispositivo (qualora fosse connesso)
+            await self.disconnect_from_device()
             # effettua la connessione
             self.client = BleakClient(device_address)
             await self.client.connect()
             
             # Controlla se ci si è connessi correttamente
             if self.client.is_connected:
+                print("Ora si connetterà")
                 self.is_connected = True
                 self.log_message(f"Connesso a {device_name}")
                 
@@ -158,7 +161,7 @@ class BLEClient:
         else:
             print("Nessuna funzione di callback assegnata per gestire le notifiche.")
             
-    def notification_handler_new(self, sender, data):    
+    def notification_int_handler(self, sender, data):    
         print(f"Data: {data}")
         print(f"type of data: {type(data)}")
         
@@ -192,7 +195,7 @@ class BLEClient:
         # ad ogni notifica ricevuta sulla caratteristica con uuid MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
         # viene eseguita la funzione notification_float_handler
         await self.client.start_notify(BLEClient.MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
-                                       self.notification_float_handler)
+                                       self.notification_int_handler)
         print("Notifiche sulla misurazione attivate")
         
     # Interrompe la ricezione delle notifiche
@@ -204,7 +207,7 @@ class BLEClient:
         # ad ogni notifica ricevuta sulla caratteristica con uuid BATTERY_LEVEL_NOTIFICATION_CHARACTERISTIC_UUID,
         # viene eseguita la funzione 
         await self.client.start_notify(BLEClient.BATTERY_LEVEL_NOTIFICATION_CHARACTERISTIC_UUID,
-                                  self.notification_battery_level)
+                                       self.notification_battery_level)
         print("Notifiche sulla percentuale di batteria attivate")
         
     async def stop_battery_level_notify(self):

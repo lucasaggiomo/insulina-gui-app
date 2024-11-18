@@ -62,13 +62,22 @@ class App(tk.Tk):
     def on_closing(self):
         plt.close('all')  # Chiude tutte le figure matplotlib aperte
         
-        # self.stop_board(write_message = False)
-        
         if self.BLEclient:
-            self.BLEclient.run_async_task(self.BLEclient.disconnect_from_device())
+            # manda stop alla board
+            self.BLEclient.run_async_task(
+                self.BLEclient.stop_board()
+            )
+            
+            # si disconnette dalla board
+            self.BLEclient.run_async_task(
+                self.BLEclient.disconnect_from_device()
+            )
+            
+            # interrompe il loop di self.BLEclient
             self.BLEclient.stop_event_loop()
             
-        self.destroy()     # Chiude la finestra tkinter
+        # Chiude la finestra tkinter
+        self.destroy()
 
 
     # Funzione per creare tutti i widgets della finestra
@@ -312,7 +321,8 @@ class App(tk.Tk):
         )
         
     def on_connect_success(self):
-        self.connect_button.config(state=tk.DISABLED)
+        # self.connect_button.config(state=tk.DISABLED)
+        self.start_battery_level_notify()
         # self.disconnect_button.config(state=tk.NORMAL)
             
     def connect_to_device_click(self):
@@ -343,15 +353,10 @@ class App(tk.Tk):
         
         print("Mando start alla board")
         
-        # Crea un loop asincrono permanente
-        self.measurement_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.measurement_loop)
-        
-        # Avvia il ciclo di eventi in un thread separato
-        threading.Thread(target=self.measurement_loop.run_forever, daemon=True).start()
-        
-        # Usa create_task per avviare start_board senza chiudere il loop
-        self.measurement_loop.create_task(self.BLEclient.start_board())
+        # manda un comando di start alla board
+        self.BLEclient.run_async_task(
+            self.BLEclient.start_board()
+        )
         
         return True
         
@@ -363,26 +368,22 @@ class App(tk.Tk):
         
         print("Mando stop alla board")
         
-        self.measurement_loop.stop()
-        asyncio.run(self.BLEclient.stop_board())
+        # manda un comando di start alla board
+        self.BLEclient.run_async_task(
+            self.BLEclient.stop_board()
+        )
         
         return True
         
     def start_battery_level_notify(self):
-        if self.BLEclient.is_connected:
+        if not self.BLEclient.is_connected:
             return False
         
         print("Mando la richiesta di ricezione delle notifiche sulla percentuale di batteria della board")
         
-        # Crea un loop asincrono permanente
-        self.battery_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.battery_loop)
-        
-        # Avvia il ciclo di eventi in un thread separato
-        threading.Thread(target=self.battery_loop.run_forever, daemon=True).start()
-        
-        # Usa create_task per avviare start_battery_level_notify senza chiudere il loop
-        self.battery_loop.create_task(self.BLEclient.start_battery_level_notify())
+        self.BLEclient.run_async_task(
+            self.BLEclient.start_battery_level_notify()
+        )
         
         return True
     
@@ -394,8 +395,9 @@ class App(tk.Tk):
         
         print("Interrompo la ricezione della percentuale di batteria della board")
         
-        self.battery_loop.stop()
-        asyncio.run(self.BLEclient.stop_battery_level_notify())
+        self.BLEclient.run_async_task(
+            self.BLEclient.stop_battery_level_notify()
+        )
     
     # EVENTI BOTTONI
     def show_dati_button_clicked(self):
