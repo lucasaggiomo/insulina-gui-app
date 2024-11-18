@@ -19,7 +19,7 @@ from frontend.image_manager import ImageManager  # importo la classe ImageManage
 from frontend.style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
 from screeninfo import get_monitors
-from backend import bluetooth
+from backend.bluetooth import BLEClient
 from tkinter import messagebox
 import threading
 import asyncio
@@ -56,8 +56,6 @@ class App(tk.Tk):
         # Carico tutti gli stili dell'applicazione con la classe StyleManager
         StyleManager.load_styles()
     
-        self.clientBLE = None
-                
         # Chiamo la funzione create_widgets - dichiarata successivamente
         self.create_widgets()
 
@@ -66,9 +64,10 @@ class App(tk.Tk):
         
         # self.stop_board(write_message = False)
         
-        # if self.clientBLE:
-        #     threading.Thread(asyncio.run(self.clientBLE.disconnect())).start()
-        
+        if self.BLEclient:
+            self.BLEclient.run_async_task(self.BLEclient.disconnect_from_device())
+            self.BLEclient.stop_event_loop()
+            
         self.destroy()     # Chiude la finestra tkinter
 
 
@@ -175,7 +174,7 @@ class App(tk.Tk):
         self.battery_label.grid(column=2, row=0, padx=5, pady=5, sticky="nsew")
         
         return status_frame
-
+            
     # Crea il frame che contiene i tre tabs (AcquisizioneDati, StatoMacchina e EsportazioneDati)
     def create_tab_manager_frame(self):
         tab_manager = tk.Frame(self)
@@ -194,9 +193,10 @@ class App(tk.Tk):
         self.dati_tab.grid(row=0,column=0, sticky="nsew")
         self.dati_tab.progress_value = 50
         
-        # inizializzo le funzioni riguardanti le notifiche
-        bluetooth.new_measurement_callback = lambda lettura: self.dati_tab.handle_new_measurement(lettura)
-        bluetooth.update_battery_level_callback = lambda lettura: self.update_battery_percentage(lettura)
+        # creo un oggetto BLEclient
+        self.BLEclient = BLEClient(self.dati_tab.handle_new_measurement,
+                                   self.update_battery_percentage)
+        self.BLEclient.start_event_loop()
 
         self.macchina_tab = StatoMacchina(tab_manager)
         self.macchina_tab.grid(row=0,column=0, sticky="nsew")
@@ -217,54 +217,6 @@ class App(tk.Tk):
         self.battery_label.configure(image = ImageManager.get_battery_image(new_percentage))
     
     # SEZIONE BLUETOOTH
-    def scanning_devices(self):
-        target_name = ""
-        target_address = ""
-    
-        # svuoto la lista
-        self.devices = []
-        self.reset_bluetooth_treeview()
-        
-        # attivo la scansione dei dispositivi
-        scan_thread = threading.Thread(target=bluetooth.run_scan_thread,
-                                       args=(target_name, target_address, self.devices, self.status_text))
-        scan_thread.start()
-        scan_thread.join()
-        
-        # aggiorno la lista
-        self.aggiorna_bluetooth_treeview()
-        # nomi_dispositivi = [f'{device['name']}: {device['address']}' for device in self.devices]
-        # self.devices_list_variable.set(nomi_dispositivi)
-    
-    def connecting_to_device(self, device_name, device_address):
-        # crea un thread che invoca la funzione "bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text))"
-        # e poi assegna il risultato di questa funzione all'attributo self.clientBLE
-        connection_thread = threading.Thread(target=lambda:
-                                setattr(self, 'clientBLE',
-                                        bluetooth.run_connection_thread(device_name, device_address, self.connection_status_text)))
-        
-        connection_thread.start()
-        connection_thread.join()
-        
-        self.start_battery_level_notify()        
-    
-    def reset_bluetooth_treeview(self):
-        # Rimuove tutti gli elementi esistenti dalla Treeview
-        for item in self.devices_tree.get_children():
-            self.devices_tree.delete(item)
-            
-    def aggiorna_bluetooth_treeview(self):
-        # resetta la treeview
-        self.reset_bluetooth_treeview()
-
-        # Inserisce i nuovi dati dalla lista self.devices
-        for device in self.devices:
-            self.devices_tree.insert("", tk.END, values=(device["name"], device["address"]))
-            
-    def on_bluetooth_window_closing(self, bluetooth_window):
-        self.is_bluetooth_window_open = False
-        bluetooth_window.destroy()
-    
     def bluetooth_button_clicked(self):
         # esce dalla funzione se la finestra risulta già aperta
         if self.is_bluetooth_window_open:
@@ -290,16 +242,14 @@ class App(tk.Tk):
                                  command=self.scan_button_click)
         scan_button.pack(side=tk.TOP, pady=(50,10))
 
-        self.status_text = tk.StringVar(value="Clicca il tasto Ricerca per cercare la tua board")
+        self.scan_var = tk.StringVar(value="Clicca il tasto Ricerca per cercare la tua board")
         status_label = ttk.Label(bluetooth_window,
-                                 textvariable=self.status_text,
+                                 textvariable=self.scan_var,
                                  justify=tk.CENTER,
                                  style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
         status_label.pack(side=tk.TOP)
-        
-        self.devices = []
-        
-        # Creo una Treeview con due colonne
+                
+        # Creo una tabella con due colonne
         self.devices_tree = ttk.Treeview(bluetooth_window,
                                          columns=("name", "address"),
                                          show="headings")
@@ -317,43 +267,76 @@ class App(tk.Tk):
         # Posiziona la Treeview nella finestra
         self.devices_tree.pack(expand=True, fill=tk.BOTH, padx=20)
                 
-        scan_button = ttk.Button(bluetooth_window,
+        self.connect_button = ttk.Button(bluetooth_window,
                                  text="Connetti",
                                  style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
-                                 command=self.connect_device_click)
-        scan_button.pack(side=tk.TOP, pady=10)
+                                 command=self.connect_to_device_click)
+        self.connect_button.pack(side=tk.TOP, pady=10)
         
-        self.connection_status_text = tk.StringVar(value="Seleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
+        self.connection_status_var = tk.StringVar(value="Seleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
         connection_status_label = ttk.Label(bluetooth_window,
-                                            textvariable=self.connection_status_text,
+                                            textvariable=self.connection_status_var,
                                             justify=tk.CENTER,
                                             style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
         connection_status_label.pack(side=tk.TOP, pady=(0, 10))
-            
-    def scan_button_click(self):
-        # ricerca i dispositivi in maniera concorrente
-        scanner = threading.Thread(target=self.scanning_devices)
-        scanner.start()
         
-    def connect_device_click(self):
+        self.BLEclient.status_var = self.connection_status_var
+
+    # rimuove tutti gli elementi esistenti nella tabella dei dispositivi bluetooth
+    def reset_bluetooth_treeview(self):
+        for item in self.devices_tree.get_children():
+            self.devices_tree.delete(item)
+            
+    # aggiorna la tabella dei dispositivi bluetooth
+    def aggiorna_bluetooth_treeview(self):
+        # resetta la treeview
+        self.reset_bluetooth_treeview()
+
+        # Inserisce i nuovi dati dalla lista self.devices
+        for device in self.BLEclient.devices_found:
+            self.devices_tree.insert("", tk.END, values=(device.name or "Sconosciuto", device.address))
+            
+    def on_bluetooth_window_closing(self, bluetooth_window):
+        self.is_bluetooth_window_open = False
+        bluetooth_window.destroy()
+        
+    def on_scan_complete(self):
+        self.reset_bluetooth_treeview()
+        self.aggiorna_bluetooth_treeview()
+        
+    # avvia la scansione dei dispositivi BLE nelle vicinanze
+    # ed esegue on_scan_complete al termine, per aggiornare la tabella
+    def scan_button_click(self):
+        self.BLEclient.run_async_task(
+            self.BLEclient.start_scan(callback=self.on_scan_complete)
+        )
+        
+    def on_connect_success(self):
+        self.connect_button.config(state=tk.DISABLED)
+        # self.disconnect_button.config(state=tk.NORMAL)
+            
+    def connect_to_device_click(self):
         selected_item = self.devices_tree.selection()
         if not selected_item:
-            self.connection_status_text.set("Nessun dispositivo selezionato\nSeleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
+            self.update_status("Seleziona un dispositivo per connetterti.")
             return
-
-        # Ottieni l'indirizzo del dispositivo selezionato
+        
+        # ottiene il nome e l'indirizzo del dispositivo selezionato
         device_info = self.devices_tree.item(selected_item, "values")
         device_name = device_info[0]     # Il nome è nella prima colonna
         device_address = device_info[1]  # L'indirizzo è nella seconda colonna
         
-        connection = threading.Thread(target=self.connecting_to_device,
-                                      args=(device_name, device_address))
-        connection.start()
-        
         print(f"Dispositivo selezionato:\nnome: {device_name}, indirizzo MAC: {device_address}")
+        
+        # Avvia la connessione in modo asincrono
+        self.BLEclient.run_async_task(
+            self.BLEclient.connect_to_device(device_name,
+                                             device_address,
+                                             on_success=self.on_connect_success)
+        )
 
     def start_board(self):
-        if self.clientBLE is None:
+        if not self.BLEclient.is_connected:
             messagebox.showerror(title="Misurazione non iniziata",
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
@@ -361,37 +344,32 @@ class App(tk.Tk):
         print("Mando start alla board")
         
         # Crea un loop asincrono permanente
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
+        self.measurement_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.measurement_loop)
         
         # Avvia il ciclo di eventi in un thread separato
-        threading.Thread(target=self.loop.run_forever, daemon=True).start()
+        threading.Thread(target=self.measurement_loop.run_forever, daemon=True).start()
         
         # Usa create_task per avviare start_board senza chiudere il loop
-        self.loop.create_task(bluetooth.start_board(self.clientBLE))
+        self.measurement_loop.create_task(self.BLEclient.start_board())
         
         return True
         
-    def stop_board(self, write_message = True):
-        if self.clientBLE is None:
-            if write_message:
-                messagebox.showerror(title="Misurazione non terminata",
-                                    message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+    def stop_board(self):
+        if not self.BLEclient.is_connected:
+            messagebox.showerror(title="Misurazione non terminata",
+                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
-        if write_message:
-            print("Mando stop alla board")
+        print("Mando stop alla board")
         
-        
-        self.loop.stop()
-        asyncio.run(bluetooth.stop_board(self.clientBLE))
+        self.measurement_loop.stop()
+        asyncio.run(self.BLEclient.stop_board())
         
         return True
         
     def start_battery_level_notify(self):
-        if self.clientBLE is None:
-            # messagebox.showerror(title="Misurazione non iniziata",
-            #                     message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+        if self.BLEclient.is_connected:
             return False
         
         print("Mando la richiesta di ricezione delle notifiche sulla percentuale di batteria della board")
@@ -404,20 +382,20 @@ class App(tk.Tk):
         threading.Thread(target=self.battery_loop.run_forever, daemon=True).start()
         
         # Usa create_task per avviare start_battery_level_notify senza chiudere il loop
-        self.battery_loop.create_task(bluetooth.start_battery_level_notify(self.clientBLE))
+        self.battery_loop.create_task(self.BLEclient.start_battery_level_notify())
         
         return True
     
     def stop_battery_level_notify(self):
         if self.clientBLE is None:
             messagebox.showerror(title="Misurazione non terminata",
-                                    message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
         print("Interrompo la ricezione della percentuale di batteria della board")
         
         self.battery_loop.stop()
-        asyncio.run(bluetooth.stop_battery_level_notify(self.clientBLE))
+        asyncio.run(self.BLEclient.stop_battery_level_notify())
     
     # EVENTI BOTTONI
     def show_dati_button_clicked(self):
@@ -446,6 +424,7 @@ class App(tk.Tk):
         self.show_dati_button.configure(style = StyleManager.BIG_BLUE_BUTTON_STYLE_NAME)
         
         print("Schermata Esportazione Dati selezionata")
+
 
 if __name__ == "__main__":
     app = App() # invoco il costruttore
