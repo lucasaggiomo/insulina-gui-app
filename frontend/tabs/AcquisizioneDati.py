@@ -152,7 +152,7 @@ class AcquisizioneDati(tk.Frame):
                                                        text="Frequenza singola",
                                                        width=20,
                                                        padding=10,
-                                                       style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
+                                                       style=StyleManager.MEDIUM_RED3_BUTTON_STYLE_NAME,
                                                        command=self.toggle_frequency_mode_button_clicked)
         self.toggle_frequency_mode_button.grid(column=0, row=0, padx=5, pady=5, sticky="nsew")
         self.current_frequency_mode = AcquisizioneDati.FREQUENZA_SINGOLA

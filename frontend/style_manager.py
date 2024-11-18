@@ -16,6 +16,7 @@ class StyleManager:
     
     foreground_blue_color = "darkblue"
     foreground_red_color = "red"
+    foreground_red3_color = "red3"
     foreground_green_color = "green"
     foreground_darkgreen_color = "darkgreen"
 
@@ -27,7 +28,7 @@ class StyleManager:
     BIG_GREEN_BUTTON_STYLE_NAME = "BigGreen.TButton"
     MEDIUM_GREEN_BUTTON_STYLE_NAME = "MediumGreen.TButton"
     
-    MEDIUM_DARKGREEN_BUTTON_STYLE_NAME = "MediumDarkGreen.TButton"
+    MEDIUM_RED3_BUTTON_STYLE_NAME = "MediumRed3.TButton"
     
     MEDIUM_RED_BUTTON_STYLE_NAME = "MediumRed.TButton"
     
@@ -77,9 +78,9 @@ class StyleManager:
                         padding=10
                         )
                      
-        style.configure(StyleManager.MEDIUM_DARKGREEN_BUTTON_STYLE_NAME,      # nome
+        style.configure(StyleManager.MEDIUM_RED3_BUTTON_STYLE_NAME,      # nome
                         font=StyleManager.medium_font,              # font
-                        foreground=StyleManager.foreground_darkgreen_color,   # colore testo
+                        foreground=StyleManager.foreground_red3_color,   # colore testo
                         padding=10
                         )
            

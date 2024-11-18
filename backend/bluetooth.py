@@ -38,12 +38,14 @@ class BLEClient:
         self.is_connected = False
         self.devices_found = []
         
+        self.status_var = None
+        
     # esegue una coroutine nel loop principale della classe
     def run_async_task(self, coro):
         return asyncio.run_coroutine_threadsafe(coro, self.main_loop)
     
     # esegue la scansione dei dispositivi BLE nelle vicinanze
-    async def start_scan(self, callback=None):
+    async def start_scan(self, callback=None, on_error=None):
         try:
             self.log_message("Scansione in corso...")
             
@@ -67,23 +69,49 @@ class BLEClient:
 
         except BleakError as e:
             self.log_message(f"Bluetooth error: {e}\nControlla se il bluetooth è attivo")
+            if on_error:
+                on_error()
 
         except Exception as e:
             self.log_message(f"Unexpected error: {e}\nControlla se il bluetooth è attivo")
-
+            if on_error:
+                on_error()
+                
     # si connette al dispositivo con indirizzo device_address
     # al termine della connessione, in caso di successo esegue la funzione on_success
-    async def connect_to_device(self, device_name, device_address, on_success=None):
+    async def connect_to_device(self, device_name, device_address, on_success=None, on_error=None):
         try:
+            # controlla se è già connesso ad un dispositivo
+            if self.client and self.client.is_connected:
+                
+                # se il dispositivo a cui è connesso è lo stesso a cui ci si vuole connettere, termina la funzione
+                if self.client.address == device_address:
+                    return
+                
+                # altrimenti si disconnette dal dispositivo precedente
+
+                self.log_message(f"Disconnessione da {self.client.address} in corso...")
+                await self.disconnect_from_device()
+
+            # effettua la connessione con il nuovo dispositivo                
             self.log_message(f"Connessione a {device_name} in corso...")
             
-            # si disconnette dal precedente dispositivo (qualora fosse connesso)
-            await self.disconnect_from_device()
-            # effettua la connessione
+            # inizializza il client per la connessione al dispositivo con indirizzo device_address
             self.client = BleakClient(device_address)
-            await self.client.connect()
             
-            # Controlla se ci si è connessi correttamente
+            # tenta la connessione con un timeout' di 10 secondi
+            try:
+                await asyncio.wait_for(
+                    self.client.connect(),
+                    timeout = 10
+                )
+            except asyncio.TimeoutError:
+                self.log_message(f"Connessione a {device_name} fallita. Riprova")
+                if on_error:
+                    on_error()
+                return
+            
+            # controlla se ci si è connessi correttamente
             if self.client.is_connected:
                 print("Ora si connetterà")
                 self.is_connected = True
@@ -99,9 +127,13 @@ class BLEClient:
                     
         except BleakError as e:
             self.log_message(f"Errore di connessione: {e}")
-        
+            if on_error:
+                on_error()
+
         except Exception as e:
             self.log_message(f"Errore inaspettato: {e}")
+            if on_error:
+                on_error()
 
     # si disconnette dal dispositivo a cui è attualmente connesso (qualora fosse connesso a qualcuno)
     # ed esegue la funzione on_success in caso di successo
@@ -111,10 +143,33 @@ class BLEClient:
 
             await self.client.disconnect()
             
+            self.is_connected = False
+            
             self.log_message(f"Disconnesso")
             
             if on_success:
                 on_success()
+                
+    # sequenza asincrona per la disconnessione dalla board
+    async def disconnect_sequence(self):
+        try:
+            if self.is_connected:
+                # Manda il comando "stop"
+                print("Inviando comando 'stop'...")
+                await self.stop_board()
+
+                # Disconnettiti dal dispositivo
+                print("Disconnessione dal dispositivo...")
+                await self.disconnect_from_device()
+
+            # Ferma il loop dedicato
+            print("Interrompendo il loop...")
+            self.stop_event_loop()
+
+            print("Ciclo di disconnessione completato.")
+            
+        except Exception as e:
+            print(f"Errore durante la chiusura: {e}")
 
     # FUNZIONI PER LA GESTIONE DEL LOOP PRINCIPALE DELLA CLASSE
     
