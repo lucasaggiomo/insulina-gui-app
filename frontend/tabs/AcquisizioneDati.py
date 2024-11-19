@@ -69,6 +69,7 @@ class AcquisizioneDati(tk.Frame):
 
         graph_frame = self.create_graph_frame()
         graph_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
+        graph_frame.configure(width=400, height=300)  # Limita le dimensioni iniziali
 
         start_stop_frame = self.create_bottom_bar_frame()
         start_stop_frame.grid(column=0, row=2, padx=5, pady=0, sticky="nsew")
@@ -99,10 +100,10 @@ class AcquisizioneDati(tk.Frame):
         graph_frame = tk.Frame(self)
         
         # Configura la griglia del frame per espandersi
-        graph_frame.grid_rowconfigure(0, weight=1)  # Fa sì che la riga del grafico si espanda
-        graph_frame.grid_columnconfigure(0, weight=1)  # Fa sì che la colonna del grafico si espanda
-        
-        # graph_frame.pack_propagate(False)
+        graph_frame.grid_rowconfigure(0, weight=1)
+        graph_frame.grid_columnconfigure(0, weight=1)
+
+        graph_frame.pack_propagate(False)
 
         # Inizializzo la figura di Matplotlib
         self.fig, self.ax = plt.subplots(figsize=(4, 3))
@@ -126,7 +127,7 @@ class AcquisizioneDati(tk.Frame):
 
         # Aggiungi il grafico alla finestra Tkinter
         self.canvas = FigureCanvasTkAgg(master=graph_frame, figure=self.fig)
-        self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew", padx=4, pady=4)  # Usa grid per il posizionamento
+        self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
 
         return graph_frame
         
@@ -376,9 +377,9 @@ class AcquisizioneDati(tk.Frame):
         
     @staticmethod
     def init_graph(graph):
-        graph.set_title("Grafico misurazioni", fontsize=20)  
-        graph.set_xlabel("Numero misurazione", fontsize=15, labelpad=2)     
-        graph.set_ylabel("Ohm", fontsize=15, labelpad=2)
+        graph.set_title("Grafico misurazioni", fontsize = 17)
+        graph.set_xlabel("Numero misurazione", fontsize = 13)
+        graph.set_ylabel("Ohm", fontsize = 13)
 
         graph.grid(True)
         

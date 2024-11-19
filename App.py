@@ -34,8 +34,8 @@ class App(tk.Tk):
         self.screen_height = self.winfo_screenheight() # height of the screen
         
         # Imposta la finestra al 80% della larghezza e al 80% dell'altezza dello schermo
-        window_width = int(self.screen_width * 0.7)
-        window_height = int(self.screen_height * 0.7)
+        window_width = int(self.screen_width * 0.8)
+        window_height = int(self.screen_height * 0.8)
         
         # Calcola le posizioni x e y della finestra
         x = int((self.screen_width - window_width) / 2)
