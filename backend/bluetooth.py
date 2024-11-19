@@ -38,6 +38,10 @@ class BLEClient:
         self.is_connected = False
         self.devices_found = []
         
+        # variabili riguardanti il dispositivo a cui ci si è connessi
+        self.connected_device_name = ""
+        self.connected_device_address = ""
+        
         self.status_var = None
         
     # esegue una coroutine nel loop principale della classe
@@ -79,7 +83,8 @@ class BLEClient:
                 
     # si connette al dispositivo con indirizzo device_address
     # al termine della connessione, in caso di successo esegue la funzione on_success
-    async def connect_to_device(self, device_name, device_address, on_success=None, on_error=None):
+    # infine, quando il dispositivo si disconnette, esegue on_disconnect
+    async def connect_to_device(self, device_name, device_address, on_success = None, on_error = None, on_disconnect = None):
         try:
             # controlla se è già connesso ad un dispositivo
             if self.client and self.client.is_connected:
@@ -89,15 +94,18 @@ class BLEClient:
                     return
                 
                 # altrimenti si disconnette dal dispositivo precedente
-
                 self.log_message(f"Disconnessione da {self.client.address} in corso...")
                 await self.disconnect_from_device()
+                
+                self.connected_device_name = ""
+                self.connected_device_address = ""
 
-            # effettua la connessione con il nuovo dispositivo                
+            # effettua la connessione con il nuovo dispositivo
             self.log_message(f"Connessione a {device_name} in corso...")
             
             # inizializza il client per la connessione al dispositivo con indirizzo device_address
-            self.client = BleakClient(device_address)
+            self.client = BleakClient(device_address,
+                                      disconnected_callback = lambda client: self.on_device_disconnected(client, on_disconnect))
             
             # tenta la connessione con un timeout' di 10 secondi
             try:
@@ -107,15 +115,18 @@ class BLEClient:
                 )
             except asyncio.TimeoutError:
                 self.log_message(f"Connessione a {device_name} fallita. Riprova")
+                
                 if on_error:
                     on_error()
                 return
             
             # controlla se ci si è connessi correttamente
             if self.client.is_connected:
-                print("Ora si connetterà")
                 self.is_connected = True
                 self.log_message(f"Connesso a {device_name}")
+                
+                self.connected_device_name = device_name
+                self.connected_device_address = device_address
                 
                 # esegue la funzione da eseguire in caso di successo (se è non nulla)
                 if on_success:
@@ -134,6 +145,15 @@ class BLEClient:
             self.log_message(f"Errore inaspettato: {e}")
             if on_error:
                 on_error()
+                
+    # funzione eseguita quando il dispositivo si disconnette (non per volere del client)
+    def on_device_disconnected(self, client, on_disconnect):
+        self.is_connected = False
+        self.connected_device_name = ""
+        self.connected_device_address = ""
+    
+        if on_disconnect:
+            on_disconnect()
 
     # si disconnette dal dispositivo a cui è attualmente connesso (qualora fosse connesso a qualcuno)
     # ed esegue la funzione on_success in caso di successo
@@ -144,6 +164,8 @@ class BLEClient:
             await self.client.disconnect()
             
             self.is_connected = False
+            self.connected_device_name = ""
+            self.connected_device_address = ""
             
             self.log_message(f"Disconnesso")
             

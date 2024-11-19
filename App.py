@@ -9,20 +9,16 @@
 # Importo la libreria tkinter
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 # Importo altre classi
-import frontend as ft
-import backend as bk
-
 from frontend.tabs import *
 from frontend.image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
 from frontend.style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
-from backend.bluetooth import BLEClient
-from tkinter import messagebox
-import threading
-import asyncio
 
+# Backend
+from backend.bluetooth import BLEClient
 
 class App(tk.Tk):
 
@@ -233,10 +229,11 @@ class App(tk.Tk):
         self.is_connecting = False
         self.is_scanning = False
         
-        bluetooth_window = tk.Toplevel(self)  # Crea una nuova finestra
+        # Crea una nuova finestra
+        bluetooth_window = tk.Toplevel(self)
         bluetooth_window.title("Ricerca bluetooth")
         
-        bluetooth_window_width = 500
+        bluetooth_window_width = 700
         bluetooth_window_height = 700
         
         # Calcola le posizioni x e y della finestra
@@ -250,8 +247,6 @@ class App(tk.Tk):
         # Imposto che alla chiusura della finestra la variabile is_bluetooth_window_open sia impostata a False
         bluetooth_window.protocol("WM_DELETE_WINDOW", lambda: self.on_bluetooth_window_closing(bluetooth_window))
 
-        # Aggiungo un'etichetta nella nuova finestra
-        
         # Aggiungo un pulsante per chiudere la nuova finestra
         self.scan_button = ttk.Button(bluetooth_window,
                                       text="Ricerca",
@@ -259,17 +254,44 @@ class App(tk.Tk):
                                       command=self.scan_button_click)
         self.scan_button.pack(side=tk.TOP, pady=(50,10))
 
-        self.scan_stauts_var = tk.StringVar(value="Clicca il tasto \"Ricerca\" per cercare la tua board")
+        self.scan_status_var = tk.StringVar(value="Clicca il tasto \"Ricerca\" per effettuare una scansione\ndei dispositivi BLE nelle vicinanze")
         status_label = ttk.Label(bluetooth_window,
-                                 textvariable=self.scan_stauts_var,
+                                 textvariable=self.scan_status_var,
                                  justify=tk.CENTER,
                                  style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
         status_label.pack(side=tk.TOP, pady=(0, 10))
-              
+        
+        self.connected_device_var = tk.StringVar()
+        self.connected_device_label = ttk.Label(bluetooth_window,
+                                 textvariable=self.connected_device_var,
+                                 justify=tk.CENTER,
+                                 style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
+        self.connected_device_label.pack(side=tk.TOP, pady=(0,10))
+
+        if self.BLEclient.is_connected:
+            self.connected_device_var.set(f"Sei connesso al dispositivo: {self.BLEclient.connected_device_name}, {self.BLEclient.connected_device_address}")
+        else:
+            self.connected_device_var.set(f"Non sei connesso ad alcun dispositivo")
+            
         # definisco il frame della tabella, contenente:
         # - la tabella nella riga 0 e colonna 0
-        # - la barra di scorrimento nella riga 0 e colonna 1  
-        devices_list_frame = tk.Frame(bluetooth_window)
+        # - la barra di scorrimento nella riga 0 e colonna 1
+        devices_list_frame = self.create_devices_list_frame(bluetooth_window)
+
+        # Posiziona il frame della tabella nella finestra
+        devices_list_frame.pack(expand=True, fill=tk.BOTH, padx=20)
+        
+        # definisce il bottone per la connessione
+        self.connect_button = ttk.Button(bluetooth_window,
+                                         text="Connetti",
+                                         style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
+                                         command=self.connect_to_device_click)
+        self.connect_button.pack(side=tk.TOP, pady=10)
+        
+        self.BLEclient.status_var = self.scan_status_var
+        
+    def create_devices_list_frame(self, parent):
+        devices_list_frame = tk.Frame(parent)
         devices_list_frame.grid_propagate(False)
         
         # riga
@@ -289,9 +311,9 @@ class App(tk.Tk):
         self.devices_tree.heading("name", text="Nome Dispositivo", anchor=tk.CENTER)
         self.devices_tree.heading("address", text="Indirizzo", anchor=tk.CENTER)
 
-        # Definisco la larghezza delle colonne (opzionale)
-        self.devices_tree.column("name", anchor=tk.W, width=150)
-        self.devices_tree.column("address", anchor=tk.W, width=200)
+        # Definisco la larghezza delle colonne
+        self.devices_tree.column("name", anchor=tk.W, width=100)
+        self.devices_tree.column("address", anchor=tk.W)
         
         # definisco la scrollbar
         vertical_scrollbar = ttk.Scrollbar(devices_list_frame,
@@ -302,28 +324,14 @@ class App(tk.Tk):
         self.devices_tree.configure(yscrollcommand=vertical_scrollbar.set)
 
         self.aggiorna_bluetooth_treeview()
+        
+        return devices_list_frame
 
-        # Posiziona il frame della tabella nella finestra
-        devices_list_frame.pack(expand=True, fill=tk.BOTH, padx=20)
-                
-        self.connect_button = ttk.Button(bluetooth_window,
-                                 text="Connetti",
-                                 style=StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,
-                                 command=self.connect_to_device_click)
-        self.connect_button.pack(side=tk.TOP, pady=10)
-        
-        # inizialmente il bottone di connessione è disabilitato
-        self.connect_button.config(state=tk.DISABLED)
-        
-        # self.connection_status_var = tk.StringVar(value="Seleziona un dispositivo e clicca\n\"Connetti\" per instaurare la connessione")
-        # connection_status_label = ttk.Label(bluetooth_window,
-        #                                     textvariable=self.connection_status_var,
-        #                                     justify=tk.CENTER,
-        #                                     style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME)
-        # connection_status_label.pack(side=tk.TOP, pady=(0, 10))
-        
-        self.BLEclient.status_var = self.scan_stauts_var
-
+    # funzione eseguita alla chiusura della finestra di bluetooth
+    def on_bluetooth_window_closing(self, bluetooth_window):
+        self.is_bluetooth_window_open = False
+        bluetooth_window.destroy()
+    
     # rimuove tutti gli elementi esistenti nella tabella dei dispositivi bluetooth
     def reset_bluetooth_treeview(self):
         for item in self.devices_tree.get_children():
@@ -337,10 +345,6 @@ class App(tk.Tk):
         # Inserisce i nuovi dati dalla lista self.devices
         for device in self.BLEclient.devices_found:
             self.devices_tree.insert("", tk.END, values=(device.name or "Sconosciuto", device.address))
-            
-    def on_bluetooth_window_closing(self, bluetooth_window):
-        self.is_bluetooth_window_open = False
-        bluetooth_window.destroy()
         
     # avvia la scansione dei dispositivi BLE nelle vicinanze
     # ed esegue on_scan_complete al termine, per aggiornare la tabella
@@ -379,23 +383,16 @@ class App(tk.Tk):
         self.connect_button.config(state=tk.NORMAL)
             
     def connect_to_device_click(self):
-        print(f"is_scanning = {self.is_scanning}, is_connecting = {self.is_connecting}")
-        
-        # esce se sta già connettendo o se sta scansionando
+        # esce se sta già connettendo o se sta scansionandos
         if self.is_scanning or self.is_connecting:
             return
         
         # preleva l'elemento selezionato
         selected_item = self.devices_tree.selection()
         if not selected_item:
-            self.scan_stauts_var.set("Non hai selezionato un dispositivo.\nSeleziona un dispositivo e clicca \"Connetti\" per connetterti")
+            self.scan_status_var.set("Non hai selezionato un dispositivo.\nSeleziona un dispositivo e clicca \"Connetti\" per connetterti")
             return
-        
-        # imposta che sta effettuando la connesione e disabilita il bottone per connettere (per impedire connessioni multiple)
-        self.is_connecting = True
-        self.scan_button.config(state=tk.DISABLED)
-        self.connect_button.config(state=tk.DISABLED)
-        
+
         # ottiene il nome e l'indirizzo del dispositivo selezionato
         device_info = self.devices_tree.item(selected_item, "values")
         device_name = device_info[0]     # Il nome è nella prima colonna
@@ -403,22 +400,39 @@ class App(tk.Tk):
         
         print(f"Dispositivo selezionato:\nnome: {device_name}, indirizzo MAC: {device_address}")
         
+        # controlla se non ci si è già connessi dallo stesso dispositivo
+        if device_address == self.BLEclient.connected_device_address:
+            messagebox.showinfo(title="Avviso", message=f"Sei già connesso al dispositivo {device_name}, {device_address}")
+            return
+        
+        # imposta che sta effettuando la connesione e disabilita il bottone per connettere (per impedire connessioni multiple)
+        self.is_connecting = True
+        self.scan_button.config(state=tk.DISABLED)
+        self.connect_button.config(state=tk.DISABLED)
+        
         # Avvia la connessione in modo asincrono
         self.BLEclient.run_async_task(
             self.BLEclient.connect_to_device(device_name,
                                              device_address,
                                              on_success=self.on_connect_success,
-                                             on_error=self.reset_flags)
+                                             on_error=self.reset_flags,
+                                             on_disconnect=self.on_device_disconnected)
         )
     
     # funzione eseguita al termine della connessione:
     # - abilita nuovamente il bottone per scansionare e imposta la variabile is_connecting a False
     # - invia la richiesta di notifiche per la batteria alla board
+    # - imposta variabile di stato sulla connessione
     def on_connect_success(self):
-        self.connect_button.config(state=tk.NORMAL)
-        self.is_connecting = False
+        self.reset_flags()
         # self.connect_button.config(state=tk.DISABLED)
         self.start_battery_level_notify()
+        self.connected_device_var.set(f"Sei connesso al dispositivo: {self.BLEclient.connected_device_name}, {self.BLEclient.connected_device_address}")
+
+    # funzione eseguita quando il device precedentemente connesso si disconnette
+    def on_device_disconnected(self):
+        self.connected_device_var.set(f"Non sei connesso ad alcun dispositivo")
+        print("Il dispositivo si è disconnesso")
 
     def start_board(self):
         if not self.BLEclient.is_connected:
