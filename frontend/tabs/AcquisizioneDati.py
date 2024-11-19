@@ -71,7 +71,7 @@ class AcquisizioneDati(tk.Frame):
         graph_frame.grid(column=0, row=1, padx=5, pady=5, sticky="nsew")
 
         start_stop_frame = self.create_bottom_bar_frame()
-        start_stop_frame.grid(column=0, row=2, padx=5, pady=5, sticky="nsew")
+        start_stop_frame.grid(column=0, row=2, padx=5, pady=0, sticky="nsew")
     
     def create_tree_view(self):
         column_names = ('index', 'modulo', 'fase');
@@ -311,26 +311,6 @@ class AcquisizioneDati(tk.Frame):
         progress_bar_frame.pack(side="left", fill="both", pady=30, padx=20)        # allinea sulla sinistra
 
         self.progress_value.set(50)
-        
-        
-        # creo una entry per simulare l'input dalla board
-        lettura_label = ttk.Label(bottom_bar_frame,
-                                    style=StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,
-                                    text="Lettura simulata\n(1 Ohm - 500 Ohm):",
-                                    anchor="w",
-                                    padding=(10,0,10,0))
-        lettura_label.pack(side="left", fill="both", padx=0, pady=0)
-        
-        self.lettura_impedenza = tk.DoubleVar()
-        self.lettura_impedenza_entry = ttk.Entry(bottom_bar_frame,
-                                          style=StyleManager.ENTRY_BLUE_STYLE_NAME,
-                                          textvariable=self.lettura_impedenza,
-                                          font=StyleManager.small_font,
-                                          width=5)
-        self.lettura_impedenza_entry.pack(side="left", fill="both", padx=0, pady=20)
-        
-        self.lettura_impedenza.set(1)   # inizializzo a 1
-        
         
         # bottoni di start, stop e cancellazione dati
         status_frame = self.create_start_stop_frame(bottom_bar_frame)
