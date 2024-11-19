@@ -18,7 +18,6 @@ from frontend.tabs import *
 from frontend.image_manager import ImageManager  # importo la classe ImageManager dal modulo (cioè file) image_manager.py per la gestione delle immagini
 from frontend.style_manager import StyleManager  # importo la classe StyleManager dal modulo style_manager.py per la gestione degli stili
 import matplotlib.pyplot as plt   # Matplotlib per creare il grafico
-from screeninfo import get_monitors
 from backend.bluetooth import BLEClient
 from tkinter import messagebox
 import threading
@@ -34,18 +33,23 @@ class App(tk.Tk):
         # Imposta il protocollo per la chiusura della finestra
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Ottieni la risoluzione dello schermo
-        screen_width = get_monitors()[0].width
-        screen_height = get_monitors()[0].height
-
-        # Imposta la finestra al 80% della larghezza e al 80% dell'altezza dello schermo
-        window_width = int(screen_width * 0.8)
-        window_height = int(screen_height * 0.8)
-
-        # Imposta la geometria della finestra
-        self.geometry(f"{window_width}x{window_height}")
+        # Ottiene la risoluzione dello schermo
+        self.screen_width = self.winfo_screenwidth() # width of the screen
+        self.screen_height = self.winfo_screenheight() # height of the screen
         
-        self.minsize(width=1300, height=800)
+        # Imposta la finestra al 80% della larghezza e al 80% dell'altezza dello schermo
+        window_width = int(self.screen_width * 0.7)
+        window_height = int(self.screen_height * 0.7)
+        
+        # Calcola le posizioni x e y della finestra
+        x = int((self.screen_width - window_width) / 2)
+        y = int((self.screen_height - window_height) / 2)
+
+        # Imposta la geometria della finestra (dimensioni e posizione)
+        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        
+        # Imposta la dimensione mini
+        self.minsize(width=1200, height=700)
         
         # Titolo finestra
         self.title("Fondamenti di Misure")
@@ -231,7 +235,16 @@ class App(tk.Tk):
         
         bluetooth_window = tk.Toplevel(self)  # Crea una nuova finestra
         bluetooth_window.title("Ricerca bluetooth")
-        bluetooth_window.geometry("500x500")  # Imposta la dimensione della finestra
+        
+        bluetooth_window_width = 500
+        bluetooth_window_height = 700
+        
+        # Calcola le posizioni x e y della finestra
+        x = int((self.screen_width - bluetooth_window_width) / 2)
+        y = int((self.screen_height - bluetooth_window_height) / 2)
+        
+        # Imposta la dimensione della finestra e la posizione
+        bluetooth_window.geometry(f"{bluetooth_window_width}x{bluetooth_window_height}+{x}+{y}")
         bluetooth_window.minsize(width=400, height=400)
         
         # Imposto che alla chiusura della finestra la variabile is_bluetooth_window_open sia impostata a False
@@ -246,7 +259,7 @@ class App(tk.Tk):
                                       command=self.scan_button_click)
         self.scan_button.pack(side=tk.TOP, pady=(50,10))
 
-        self.scan_stauts_var = tk.StringVar(value="Clicca il tasto Ricerca per cercare la tua board")
+        self.scan_stauts_var = tk.StringVar(value="Clicca il tasto \"Ricerca\" per cercare la tua board")
         status_label = ttk.Label(bluetooth_window,
                                  textvariable=self.scan_stauts_var,
                                  justify=tk.CENTER,
