@@ -351,7 +351,10 @@ class App(tk.Tk):
 
         # Inserisce i nuovi dati dalla lista self.devices
         for device in self.BLEclient.devices_found:
-            self.devices_tree.insert("", tk.END, values=(device.name or "Sconosciuto", device.address))
+            if not device.name:
+                device.name = "Sconosciuto"
+                
+            self.devices_tree.insert("", tk.END, values=(device.name, device.address))
         
     # avvia la scansione dei dispositivi BLE nelle vicinanze
     # ed esegue on_scan_complete al termine, per aggiornare la tabella

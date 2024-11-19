@@ -222,8 +222,11 @@ class BLEClient:
     # effettua il log dei dispositivi trovati nella console
     def log_devices_in_terminal(self):
         for device in self.devices_found:
-            device_name = device.name or "Sconosciuto"
-            print(f"Nome: {device.name}, Indirizzo: {device.address}")
+            if device.name:
+                device_name = device.name
+            else:
+                device_name = "Sconosciuto"
+            print(f"Nome: {device_name}, Indirizzo: {device.address}")
    
     # FUNZIONI DI CALLBACK PER GESTIRE LA RICEZIONE DELLE NOTIFICHE
     
