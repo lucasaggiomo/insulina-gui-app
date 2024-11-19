@@ -37,12 +37,13 @@ class AcquisizioneDati(tk.Frame):
     FREQUENZA_SWEEP = True
     
     # Costruttore che costruisce l'oggetto di tipo App
-    def __init__(self, parent_frame, start_board, stop_board): 
+    def __init__(self, parent_frame, start_measurement_single_frequency, start_measurement_sweep_frequency, stop_measurement): 
         super().__init__(parent_frame)
         
         # inizializza le funzioni da invocare per mandare i comandi al client (gestiti nella classe App)
-        self.start_board = start_board
-        self.stop_board = stop_board
+        self.start_measurement_single_frequency = start_measurement_single_frequency
+        self.start_measurement_sweep_frequency = start_measurement_sweep_frequency
+        self.stop_board = stop_measurement
         
         self.is_measuring = False
         
@@ -463,7 +464,8 @@ class AcquisizioneDati(tk.Frame):
         self.numero_cicli.set(AcquisizioneDati.MIN_CICLI)
         self.voltage_value.set(AcquisizioneDati.MIN_VOLTAGE)
         
-    def print_parameters(self):
+    # ottiene i valori dei parametri inseriti e li stampa a video, verificando che siano negli intervalli di valori accettabili
+    def get_parameters(self):
         try:
             # Leggiamo i valori degli oggetti entry, verificando che siano compresi nell'intervallo giusto
             # Eseguiamo questo blocco di codice in un try, in modo da gestire eventuali errori nel blocco except
@@ -480,6 +482,8 @@ class AcquisizioneDati(tk.Frame):
                 # Legge solo la frequenza e il voltaggio se è in modalità singola
                 print(f"La frequenza è: {startF} kHz")
                 print(f"L'ampiezza del segnale di stimolazione è: {voltage} mV")
+                
+                return (voltage, startF)
             else:
                 # Legge stopF, freqPoints e numeroCicli SOLO se è in modalità sweep
                 stopF = AcquisizioneDati.get_variable_value(self.stop_frequency,
@@ -499,6 +503,8 @@ class AcquisizioneDati(tk.Frame):
                 print(f"Il numero di punti delle frequenze è: {freqPoints}")
                 print(f"Il numero di cicli è: {numeroCicli}")
                 print(f"L'ampiezza del segnale di stimolazione è: {voltage} mV")
+                
+                return (voltage, startF, stopF, freqPoints, numeroCicli)
         
         except (ValueError, tk.TclError):
             # Cattura dell'eccezione per input non validi
@@ -511,12 +517,13 @@ class AcquisizioneDati(tk.Frame):
 
     # Gestisce l'arrivo di una nuova lettura, aggiungendo il valore al grafico e alla tabella
     def handle_new_measurement(self, lettura):
-        # # Legge la misurazione (simulata) dalla entry
-        # lettura = AcquisizioneDati.get_variable_value(self.lettura_impedenza,
-        #                                                 1,
-        #                                                 500)
-            
-        self.numero_misurazioni += 1            # incremento il numero di misurazioni
+        if lettura < 1 or lettura > 500:
+            messagebox.showwarning(title="Avviso misurazione",
+                                   message=f"Attenzione! Il valore ricevuto della lettura è {lettura} Ohm, al di fuori del range accettabile (1 - 500 Ohm)")
+            return
+        
+        # incremento il numero di misurazioni
+        self.numero_misurazioni += 1
         
         # Aggiorna il grafico, aggiungendo il nuovo punto
         self.add_graph_point(lettura)
@@ -527,10 +534,18 @@ class AcquisizioneDati(tk.Frame):
     # COMANDI BOTTONI
     def start_button_clicked(self):
         try:
-            self.print_parameters()
-            
-            # Legge la misurazione dal client
-            if not self.start_board():
+            # chiamo la funzione per ottenere i parametri inseriti e li invio alla board
+            if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:
+                (voltage, frequenza) = self.get_parameters()
+                
+                is_measurement_started = self.start_measurement_single_frequency(voltage, frequenza)
+            else:
+                (voltage, startF, stopF, freqPoints, numeroCicli) = self.get_parameters()
+                
+                is_measurement_started = self.start_measurement_sweep_frequency(voltage, startF, stopF, freqPoints, numeroCicli)
+                
+            # verifico se l'invio è avvenuto correttamente
+            if not is_measurement_started:
                 return
             
             print("La misurazione è iniziata")

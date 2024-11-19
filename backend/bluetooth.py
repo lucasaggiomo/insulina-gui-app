@@ -15,8 +15,17 @@ class BLEClient:
     MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID = "9fbf120d-6301-42d9-8c58-25e699a21dbd"
     BATTERY_LEVEL_NOTIFICATION_CHARACTERISTIC_UUID = "00002a19-0000-1000-8000-00805f9b34fb"
     
+    VOLTAGE_CHARACTERISTIC_UUID = "afdfa0af-3b1e-4360-9b2f-4458138229fa"
+    FREQUENCY_CHARACTERISTIC_UUID = "3968d996-e0ce-45d3-b79b-531459743b24"
+    
+    START_FREQUENCY_CHARACTERISTIC_UUID = FREQUENCY_CHARACTERISTIC_UUID # è la stessa, in base alla modalità cambia lo scopo
+    STOP_FREQUENCY_CHARACTERISTIC_UUID = "fff2f579-1046-43ff-b938-b43bd51e4f07"
+    FREQ_POINTS_CHARACTERISTIC_UUID = "e710ee6d-fa4f-4e68-945b-ecc05bd1ce3e"
+    NUMERO_CICLI_CHARACTERISTIC_UUID = "fa9664ec-1059-45f7-810e-0bb0ae002682"
+    
     # COMANDI
-    START_COMMAND = "start"
+    START_SINGLE_FREQUENCY_COMMAND = "start single"
+    START_SWEEP_FREQUENCY_COMMAND = "start sweep"
     STOP_COMMAND = "stop"
     
     def __init__(self, new_measurement_callback, update_battery_level_callback):
@@ -178,7 +187,7 @@ class BLEClient:
             if self.is_connected:
                 # Manda il comando "stop"
                 print("Inviando comando 'stop'...")
-                await self.stop_board()
+                await self.stop_measurement()
 
                 # Disconnettiti dal dispositivo
                 print("Disconnessione dal dispositivo...")
@@ -213,7 +222,8 @@ class BLEClient:
     # effettua il log dei dispositivi trovati nella console
     def log_devices_in_terminal(self):
         for device in self.devices_found:
-            print(f"Nome: {device.name or "Sconosciuto"}, Indirizzo: {device.address}")
+            device_name = device.name or "Sconosciuto"
+            print(f"Nome: {device.name}, Indirizzo: {device.address}")
    
     # FUNZIONI DI CALLBACK PER GESTIRE LA RICEZIONE DELLE NOTIFICHE
     
@@ -296,13 +306,45 @@ class BLEClient:
 
     # SEZIONE COMANDI
 
-    # invia al server il comando di start e si mette in ascolto per le notiche
-    async def start_board(self):
-        await self.send_command(BLEClient.START_COMMAND)
+    # invia al server i parametri e il comando di start single frequency e si mette in ascolto per le notiche
+    async def start_measurement_single_frequency(self, voltage, frequency):
+        # nota: in teoria si potrebbero mandare in parallelo i parametri (sfruttando i thread)
+        # per semplicità li mando uno alla volta
+        
+        # manda i parametri inseriti dall'utente
+        await self.send_float_to_uuid(voltage, BLEClient.VOLTAGE_CHARACTERISTIC_UUID)
+        await self.send_float_to_uuid(frequency, BLEClient.FREQUENCY_CHARACTERISTIC_UUID)
+        
+        # manda il comando di inizio misurazione
+        await self.send_command(BLEClient.START_SINGLE_FREQUENCY_COMMAND)
+        
+        # si mette in ascolto per le notifiche (le letture)
+        await self.start_measurement_notify()
+        
+    # invia al server i parametri e il comando di start single frequency e si mette in ascolto per le notiche
+    async def start_measurement_sweep_frequency(self, voltage, startF, stopF, freqPoints, numeroCicli):
+        # nota: in teoria si potrebbero mandare in parallelo i parametri (sfruttando i thread)
+        # per semplicità li mando uno alla volta
+        
+        # manda i parametri inseriti dall'utente
+        await self.send_float_to_uuid(voltage, BLEClient.VOLTAGE_CHARACTERISTIC_UUID)
+        await self.send_float_to_uuid(startF, BLEClient.START_FREQUENCY_CHARACTERISTIC_UUID)
+        await self.send_float_to_uuid(stopF, BLEClient.STOP_FREQUENCY_CHARACTERISTIC_UUID)
+        await self.send_int_to_uuid(freqPoints, BLEClient.FREQ_POINTS_CHARACTERISTIC_UUID)
+        await self.send_int_to_uuid(numeroCicli, BLEClient.NUMERO_CICLI_CHARACTERISTIC_UUID)
+        
+        # manda il comando di inizio misurazione
+        await self.send_command(BLEClient.START_SWEEP_FREQUENCY_COMMAND)
+        
+        # si mette in ascolto per le notifiche (le letture)
+        await self.start_measurement_notify()
+        
+    async def start_measurement(self):
+        await self.send_command(BLEClient.START_SINGLE_FREQUENCY_COMMAND)
         await self.start_measurement_notify()
 
     # invia al server il comando di stop e interrompe l'ascolto per le notiche
-    async def stop_board(self):
+    async def stop_measurement(self):
         await self.stop_measurement_notify()
         await self.send_command(BLEClient.STOP_COMMAND)
 
@@ -312,6 +354,32 @@ class BLEClient:
             # Scrive il comando sulla caratteristica specifica
             await self.client.write_gatt_char(BLEClient.COMMAND_CHARACTERISTIC_UUID, command.encode("utf-8"))
             print(f"Comando {command} inviato")
+        except BleakError as e:
+            print(f"Errore durante l'invio del comando: {e}")
+            
+    # funzione generica per inviare il valore float "value" alla caratteristica con UUID "uuid"
+    async def send_float_to_uuid(self, value, uuid):
+        try:
+            # Codifica il valore float in un byte array
+            value_bytes = struct.pack('<f', value)  # '<f' significa float in formato little-endian
+
+            # Scrive il byte array sulla caratteristica specifica
+            await self.client.write_gatt_char(uuid, value_bytes)
+            
+            print(f"Valore {value} inviato sull'uuid {uuid}")
+        except BleakError as e:
+            print(f"Errore durante l'invio del comando: {e}")
+            
+    # funzione generica per inviare il valore int "value" alla caratteristica con UUID "uuid"
+    async def send_int_to_uuid(self, value, uuid):
+        try:
+            # Codifica il valore float in un byte array
+            value_bytes = struct.pack('<i', value)  # '<i' significa int in formato little-endian
+
+            # Scrive il byte array sulla caratteristica specifica
+            await self.client.write_gatt_char(uuid, value_bytes)
+            
+            print(f"Valore {value} inviato sull'uuid {uuid}")
         except BleakError as e:
             print(f"Errore durante l'invio del comando: {e}")
             

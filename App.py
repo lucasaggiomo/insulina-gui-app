@@ -60,6 +60,12 @@ class App(tk.Tk):
         self.create_widgets()
 
     def on_closing(self):
+        # verifica se sta effettuando una misurazione
+        if self.dati_tab.is_measuring:
+            messagebox.showwarning(title="Misurazione in corso",
+                                   message="Attenzione! Una misurazione è in corso!\nAttendi la sua terminazione oppure interrompila prima di chiudere l'applicazione")
+            return
+        
         plt.close('all')  # Chiude tutte le figure matplotlib aperte
         
         if self.BLEclient:
@@ -188,8 +194,9 @@ class App(tk.Tk):
         tab_manager.columnconfigure(0, weight=1)
 
         self.dati_tab = AcquisizioneDati(tab_manager,
-                                         self.start_board,
-                                         self.stop_board)
+                                         self.start_measurement_single_frequency,
+                                         self.start_measurement_sweep_frequency,
+                                         self.stop_measurement)
         self.dati_tab.grid(row=0,column=0, sticky="nsew")
         self.dati_tab.progress_value = 50
         
@@ -434,22 +441,38 @@ class App(tk.Tk):
         self.connected_device_var.set(f"Non sei connesso ad alcun dispositivo")
         print("Il dispositivo si è disconnesso")
 
-    def start_board(self):
+    def start_measurement_single_frequency(self, voltage, frequency):
         if not self.BLEclient.is_connected:
             messagebox.showerror(title="Misurazione non iniziata",
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
-        print("Mando start alla board")
+        print("Mando alla board il comando di inizio misurazione a singola frequenza, con i parametri inseriti")
         
         # manda un comando di start alla board
         self.BLEclient.run_async_task(
-            self.BLEclient.start_board()
+            self.BLEclient.start_measurement_single_frequency(voltage, frequency)
         )
         
         return True
         
-    def stop_board(self):
+        
+    def start_measurement_sweep_frequency(self, voltage, startF, stopF, freqPoints, numeroCicli):
+        if not self.BLEclient.is_connected:
+            messagebox.showerror(title="Misurazione non iniziata",
+                                 message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
+            return False
+        
+        print("Mando alla board il comando di inizio misurazione a frequenza sweep, con i parametri inseriti")
+        
+        # manda un comando di start alla board
+        self.BLEclient.run_async_task(
+            self.BLEclient.start_measurement_sweep_frequency(voltage, startF, stopF, freqPoints, numeroCicli)
+        )
+        
+        return True
+        
+    def stop_measurement(self):
         if not self.BLEclient.is_connected:
             messagebox.showerror(title="Misurazione non terminata",
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
@@ -459,7 +482,7 @@ class App(tk.Tk):
         
         # manda un comando di start alla board
         self.BLEclient.run_async_task(
-            self.BLEclient.stop_board()
+            self.BLEclient.stop_measurement()
         )
         
         return True
