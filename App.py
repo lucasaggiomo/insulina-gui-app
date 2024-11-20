@@ -315,8 +315,8 @@ class App(tk.Tk):
         self.devices_tree.grid_configure(row=0, column=0, sticky="nwes")
         
         # Imposto le intestazioni delle colonne
-        self.devices_tree.heading("name", text="Nome Dispositivo", anchor=tk.CENTER)
-        self.devices_tree.heading("address", text="Indirizzo", anchor=tk.CENTER)
+        self.devices_tree.heading("name", text="Nome Dispositivo", anchor=tk.W)
+        self.devices_tree.heading("address", text="Indirizzo", anchor=tk.W)
 
         # Definisco la larghezza delle colonne
         self.devices_tree.column("name", anchor=tk.W, width=100)
@@ -352,6 +352,7 @@ class App(tk.Tk):
         # Inserisce i nuovi dati dalla lista self.devices
         for device in self.BLEclient.devices_found:
             if not device.name:
+                continue
                 device.name = "Sconosciuto"
                 
             self.devices_tree.insert("", tk.END, values=(device.name, device.address))

@@ -514,6 +514,12 @@ class AcquisizioneDati(tk.Frame):
     
     # COMANDI BOTTONI
     def start_button_clicked(self):
+        if self.is_measuring:
+            messagebox.showerror("Errore", "Attenzione! Misurazione già in corso.")
+            print("Messaggio di errore: Misurazione già in corso.")
+            return
+
+        
         try:
             # chiamo la funzione per ottenere i parametri inseriti e li invio alla board
             if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:

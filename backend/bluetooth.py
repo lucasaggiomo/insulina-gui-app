@@ -185,9 +185,9 @@ class BLEClient:
     async def disconnect_sequence(self):
         try:
             if self.is_connected:
-                # Manda il comando "stop"
-                print("Inviando comando 'stop'...")
-                await self.stop_measurement()
+                # # Manda il comando "stop"
+                # print("Inviando comando 'stop'...")
+                # await self.stop_measurement()
 
                 # Disconnettiti dal dispositivo
                 print("Disconnessione dal dispositivo...")
