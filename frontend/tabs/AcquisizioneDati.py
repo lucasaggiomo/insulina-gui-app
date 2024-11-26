@@ -519,7 +519,6 @@ class AcquisizioneDati(tk.Frame):
             print("Messaggio di errore: Misurazione già in corso.")
             return
 
-        
         try:
             # chiamo la funzione per ottenere i parametri inseriti e li invio alla board
             if self.current_frequency_mode == AcquisizioneDati.FREQUENZA_SINGOLA:

@@ -451,7 +451,7 @@ class App(tk.Tk):
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
-        print("Mando alla board il comando di inizio misurazione a singola frequenza, con i parametri inseriti")
+        # print("Mando alla board il comando di inizio misurazione a singola frequenza, con i parametri inseriti")
         
         # manda un comando di start alla board
         self.BLEclient.run_async_task(
@@ -467,7 +467,7 @@ class App(tk.Tk):
                                  message="Non hai effettuato la connessione con una board.\nClicca sul bottone con il simbolo del bluetooth per collegare una board.")
             return False
         
-        print("Mando alla board il comando di inizio misurazione a frequenza sweep, con i parametri inseriti")
+        # print("Mando alla board il comando di inizio misurazione a frequenza sweep, con i parametri inseriti")
         
         # manda un comando di start alla board
         self.BLEclient.run_async_task(
