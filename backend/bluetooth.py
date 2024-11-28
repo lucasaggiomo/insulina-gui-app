@@ -240,7 +240,7 @@ class BLEClient:
         
         # invoca la funzione da eseguire per gestire l'arrivo di una nuova lettura
         if self.new_measurement_callback:
-            self.new_measurement_callback(testo_ricevuto)
+            self.new_measurement_callback(float(testo_ricevuto))
         else:
             print("Nessuna funzione di callback assegnata per gestire le notifiche.")
         
@@ -289,7 +289,7 @@ class BLEClient:
         # ad ogni notifica ricevuta sulla caratteristica con uuid MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
         # viene eseguita la funzione notification_float_handler
         await self.client.start_notify(BLEClient.MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
-                                       self.notification_int_handler)
+                                       self.notification_text_handler)
         print("Notifiche sulla misurazione attivate")
         
     # Interrompe la ricezione delle notifiche
@@ -318,25 +318,25 @@ class BLEClient:
         # nota: in teoria si potrebbero mandare in parallelo i parametri (sfruttando i thread)
         # per semplicità li mando uno alla volta
         
-        # NOTA: per ora commento il resto, invia solo il comando per iniziare a lampeggiare
+        # Manda il comando per lampeggiare
         await self.start_blinking()
                 
-        # # manda i parametri inseriti dall'utente
+        # manda i parametri inseriti dall'utente
         # await self.send_float_to_uuid(voltage, BLEClient.VOLTAGE_CHARACTERISTIC_UUID)
         # await self.send_float_to_uuid(frequency, BLEClient.FREQUENCY_CHARACTERISTIC_UUID)
         
-        # # manda il comando di inizio misurazione
+        # manda il comando di inizio misurazione
         # await self.send_command(BLEClient.START_SINGLE_FREQUENCY_COMMAND)
         
-        # # si mette in ascolto per le notifiche (le letture)
-        # await self.start_measurement_notify()
+        # si mette in ascolto per le notifiche (le letture)
+        await self.start_measurement_notify()
         
     # invia al server i parametri e il comando di start single frequency e si mette in ascolto per le notiche
     async def start_measurement_sweep_frequency(self, voltage, startF, stopF, freqPoints, numeroCicli):
         # nota: in teoria si potrebbero mandare in parallelo i parametri (sfruttando i thread)
         # per semplicità li mando uno alla volta
         
-        # NOTA: per ora commento il resto, invia solo il comando per iniziare a lampeggiare
+        
         await self.start_blinking()
         
         # # manda i parametri inseriti dall'utente
@@ -349,15 +349,15 @@ class BLEClient:
         # # manda il comando di inizio misurazione
         # await self.send_command(BLEClient.START_SWEEP_FREQUENCY_COMMAND)
         
-        # # si mette in ascolto per le notifiche (le letture)
-        # await self.start_measurement_notify()
+        # si mette in ascolto per le notifiche (le letture)
+        await self.start_measurement_notify()
 
     # invia al server il comando di stop e interrompe l'ascolto per le notiche
     async def stop_measurement(self):
         # NOTA: per ora commento il resto, invia solo il comando per interrompere il lampeggiamento
         await self.stop_blinking()
         
-        # await self.stop_measurement_notify()
+        await self.stop_measurement_notify()
         # await self.send_command(BLEClient.STOP_COMMAND)
         
     # invia al server il comando per far iniziare a lampeggiare il led
