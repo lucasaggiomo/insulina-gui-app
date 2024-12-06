@@ -6,22 +6,26 @@
 # Ponticelli Lorenzo
 # Porcelli Nicola
 
-import tkinter as tk
 from tkinter import ttk
 
+# classe per gestire tutte le immagini del programma
 class StyleManager:
+    # FONT
     big_font = ("Helvetica", 18, "bold")
     medium_font = ("Helvetica", 15, "bold")
     small_font = ("Helvetica", 13, "bold")
     
+    # COLORI
     foreground_blue_color = "darkblue"
     foreground_red_color = "red"
     foreground_red3_color = "red3"
     foreground_green_color = "green"
     foreground_darkgreen_color = "darkgreen"
 
-    # Definisco delle costanti per i nomi degli stili
-    # (in modo da semplificare la modifica, senza dover modificare il nome dappertutto)
+    # NOMI DEGLI STILI
+    # (costanti utilizzate per semplificare la modifica del nome dello stile, senza dover modificare il nome dappertutto)
+    
+    # Bottoni (terminano con ".TButton")
     BIG_BLUE_BUTTON_STYLE_NAME = "BigBlue.TButton"
     MEDIUM_BLUE_BUTTON_STYLE_NAME = "MediumBlue.TButton"
     
@@ -32,107 +36,113 @@ class StyleManager:
     
     MEDIUM_RED_BUTTON_STYLE_NAME = "MediumRed.TButton"
     
-    CUSTOM_LABELBUTTON_STYLE_NAME = "Custom2.TLabel"
-    
-    # Label
+    # Label (terminano con ".TLabel")
     BIG_BLUE_LABEL_STYLE_NAME = "BigBlue.TLabel"
     MEDIUM_BLUE_LABEL_STYLE_NAME = "MediumBlue.TLabel"
     SMALL_BLUE_LABEL_STYLE_NAME = "SmallBlue.TLabel"
     
+    # TreeView (terminano con ".TreeView")
     SMALL_TREE_VIEW_STYLE_NAME = "Small.TreeView"
     
-    # Entry
+    # Entry (terminano con ".TEntry")
     ENTRY_BLUE_STYLE_NAME = "CustomBlue.TEntry"
     
+    # carica tutti gli stili in variabili statiche della classe
     @staticmethod
     def load_styles():
         style = ttk.Style()
 
         # BOTTONI
-        style.configure(StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,         # nome
-                        font=StyleManager.big_font,                 # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=10
-                        )
-        style.configure(StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,      # nome
-                        font=StyleManager.medium_font,                   # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.BIG_BLUE_BUTTON_STYLE_NAME,            # nome
+            font=StyleManager.big_font,                         # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=10
+        )
         
-        style.configure(StyleManager.BIG_GREEN_BUTTON_STYLE_NAME,         # nome
-                        font=StyleManager.big_font,                 # font
-                        foreground=StyleManager.foreground_green_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.MEDIUM_BLUE_BUTTON_STYLE_NAME,         # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=10
+        )
         
-        style.configure(StyleManager.MEDIUM_RED_BUTTON_STYLE_NAME,      # nome
-                        font=StyleManager.medium_font,              # font
-                        foreground=StyleManager.foreground_red_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.BIG_GREEN_BUTTON_STYLE_NAME,           # nome
+            font=StyleManager.big_font,                         # font
+            foreground=StyleManager.foreground_green_color,     # colore testo
+            padding=10
+        )
         
-        style.configure(StyleManager.MEDIUM_GREEN_BUTTON_STYLE_NAME,      # nome
-                        font=StyleManager.medium_font,              # font
-                        foreground=StyleManager.foreground_green_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.MEDIUM_RED_BUTTON_STYLE_NAME,          # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_red_color,       # colore testo
+            padding=10
+        )
+        
+        style.configure(
+            StyleManager.MEDIUM_GREEN_BUTTON_STYLE_NAME,        # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_green_color,     # colore testo
+            padding=10
+        )
                      
-        style.configure(StyleManager.MEDIUM_RED3_BUTTON_STYLE_NAME,      # nome
-                        font=StyleManager.medium_font,              # font
-                        foreground=StyleManager.foreground_red3_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.MEDIUM_RED3_BUTTON_STYLE_NAME,         # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_red3_color,      # colore testo
+            padding=10
+        )
            
         # LABEL
-        style.configure(StyleManager.BIG_BLUE_LABEL_STYLE_NAME,          # nome
-                        font=StyleManager.big_font,                 # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=(0,0,10,0)
-                        )
-        style.configure(StyleManager.MEDIUM_BLUE_LABEL_STYLE_NAME,          # nome
-                        font=StyleManager.medium_font,                 # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=(0,0,10,0)
-                        )
-        style.configure(StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,        # nome
-                        font=StyleManager.small_font,               # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=(0,0,10,0)
-                        )
+        style.configure(
+            StyleManager.BIG_BLUE_LABEL_STYLE_NAME,             # nome
+            font=StyleManager.big_font,                         # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=(0,0,10,0)
+        )
+        
+        style.configure(
+            StyleManager.MEDIUM_BLUE_LABEL_STYLE_NAME,          # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=(0,0,10,0)
+        )
+        
+        style.configure(
+            StyleManager.SMALL_BLUE_LABEL_STYLE_NAME,           # nome
+            font=StyleManager.small_font,                       # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=(0,0,10,0)
+        )
 
         # ENTRY
-        style.configure(StyleManager.ENTRY_BLUE_STYLE_NAME,              # nome
-                        font=StyleManager.medium_font,               # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=10
-                        )
+        style.configure(
+            StyleManager.ENTRY_BLUE_STYLE_NAME,                 # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=10
+        )
         
         # TREE VIEW
-        style.configure(StyleManager.SMALL_TREE_VIEW_STYLE_NAME,          # nome
-                        font=StyleManager.medium_font,                 # font
-                        foreground=StyleManager.foreground_blue_color,   # colore testo
-                        padding=(0,0,10,0)
-                )
+        style.configure(
+            StyleManager.SMALL_TREE_VIEW_STYLE_NAME,            # nome
+            font=StyleManager.medium_font,                      # font
+            foreground=StyleManager.foreground_blue_color,      # colore testo
+            padding=(0,0,10,0)
+        )
         
-        style.configure("Treeview.Heading",
-                        font=StyleManager.small_font,
-                        foreground=StyleManager.foreground_blue_color)
+        # stile globale per gli heading delle colonne delle tabelle
+        style.configure(
+            "Treeview.Heading",
+            font=StyleManager.small_font,
+            foreground=StyleManager.foreground_blue_color
+        )
         
-        style.configure("Treeview",
-                        font=StyleManager.small_font,
-                        foreground=StyleManager.foreground_blue_color)
-        
-        # Definisco uno stile per la label che appare come un bottone
-        style.configure(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,
-                        relief="raised",  # Effetto di contorno "bottone"
-                        borderwidth=2,     # Spessore del contorno
-                        padding=(10, 5),   # Padding interno
-                        background="white", # Colore di sfondo
-                        foreground="darkblue", # Colore del testo
-                        font=("Helvetica", 12, "bold")) # Font della label
-        
-        # Opzionale: Stile attivo se desideri un effetto al passaggio del mouse
-        style.map(StyleManager.CUSTOM_LABELBUTTON_STYLE_NAME,
-                  background=[("active", "#e0eef9")],  # Colore di sfondo attivo
-                  foreground=[("active", "blue")])     # Colore del testo attivo
+        # stile globale per le righe delle tabelle
+        style.configure(
+            "Treeview",
+            font=StyleManager.small_font,
+            foreground=StyleManager.foreground_blue_color
+        )

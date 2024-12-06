@@ -12,10 +12,9 @@ from tkinter import ttk
 from frontend.image_manager import ImageManager
 from frontend.style_manager import StyleManager
 
-# Definisco la classe StatoMacchina, che eredita da tk.Frame
+# definisce la classe StatoMacchina, che eredita da tk.Frame
 class StatoMacchina(tk.Frame):
     
-    # Costruttore che costruisce l'oggetto di tipo App
     def __init__(self, parent_frame): 
         super().__init__(parent_frame)
         
@@ -24,14 +23,15 @@ class StatoMacchina(tk.Frame):
     def create_widgets(self):
         self.grid_propagate(False)
 
-        # definisco le colonne
+        # colonne
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.columnconfigure(2, weight=1)
 
-        # definisco le righe
+        # righe
         self.rowconfigure(0, weight=2)
 
+        # -- DA IMPLEMENTARE --
         dati_macchina_frame = tk.Frame(self, bg="blue")
         dati_macchina_frame.grid(column=0, row=0, rowspan=3, padx=5, pady=5, sticky="nsew")
 

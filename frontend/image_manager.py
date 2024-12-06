@@ -8,17 +8,18 @@
 
 import tkinter as tk
 
+# gestione path per poter caricare le immagini correttamente
 import os
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
 
+# classe per gestire tutte le immagini del programma
 class ImageManager:
-    """Classe che gestisce tutte le immagini del programma."""
-
+    
+    # carica tutte le immagini in variabili statiche della classe
     @staticmethod
     def load_images():
-        # Carica tutte le immagini
         ImageManager.battery_low_image = tk.PhotoImage(file='images/Battery_low.png').subsample(15,15)
         ImageManager.battery_medium_image = tk.PhotoImage(file='images/Battery_medium.png').subsample(15,15)
         ImageManager.battery_high_image = tk.PhotoImage(file='images/Battery_high.png').subsample(15,15)
@@ -33,10 +34,10 @@ class ImageManager:
         ImageManager.excel_image = tk.PhotoImage(file='images/Excel_logo_2k.png').subsample(30,30)
         ImageManager.pdf_image = tk.PhotoImage(file='images/Pdf_logo_white.png').subsample(30,30)
 
-    # Funzione che restituisce l'immagine della batteria in base alla percentuale
+    # funzione che restituisce l'immagine della batteria in base alla percentuale
     def get_battery_image(percentage):
-        # Verifica che la percentuale sia tra 0 e 100
-        percentage = max(0.0, min(percentage, 100.0))  # Limita la percentuale tra 0 e 100
+        # limita la percentuale tra 0 e 100
+        percentage = max(0.0, min(percentage, 100.0))  
 
         if percentage < 25.0:
             return ImageManager.battery_low_image
