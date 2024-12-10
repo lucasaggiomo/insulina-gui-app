@@ -110,10 +110,10 @@ class AcquisizioneDati(tk.Frame):
         graph_frame.grid_columnconfigure(0, weight=1)
     
         # la figura di Matplotlib
-        self.fig, self.ax = plt.subplots(figsize=(4, 3))
+        self.fig, self.graph = plt.subplots(figsize=(4, 3))
         
         # inizializza il grafico
-        AcquisizioneDati.init_graph(self.ax)
+        self.init_graph()
         
         # inizializza due array per gestire i valori delle ascisse e delle ordinate
         self.x_data = []
@@ -420,17 +420,16 @@ class AcquisizioneDati(tk.Frame):
         return value
         
     # inizializza il grafico graph
-    @staticmethod
-    def init_graph(graph):
-        graph.set_title("Grafico misurazioni", fontsize = 17)
-        graph.set_xlabel("Numero misurazione", fontsize = 13)
-        graph.set_ylabel("Temperatura [°C]", fontsize = 13)
+    def init_graph(self):
+        self.graph.set_title("Grafico misurazioni", fontsize = 17)
+        self.graph.set_xlabel("Numero misurazione", fontsize = 13)
+        self.graph.set_ylabel("Temperatura [°C]", fontsize = 13)
 
-        graph.grid(True)
+        self.graph.grid(True)
         
         # range di valori degli assi
-        graph.set_xlim(1, 10)
-        graph.set_ylim(0, 100)
+        self.graph.set_xlim(1, 10)
+        self.graph.set_ylim(0, 100)
         
     # aggiunge il punto "lettura" al grafico come valore sull'asse Y
     # il valore sull'asse X è dato dal numero della misurazione corrente (che viene incremnetato)
@@ -440,20 +439,20 @@ class AcquisizioneDati(tk.Frame):
         self.y_data.append(lettura)
 
         # rimuove il grafico precedente
-        self.ax.clear()
+        self.graph.clear()
         
-        AcquisizioneDati.init_graph(self.ax)
+        self.init_graph()
         
         # disegna i punti (self.x_data contiene le ascisse e self.y_data contiene le ordinate) e li unisce con linee
-        self.ax.plot(
+        self.graph.plot(
             self.x_data,
             self.y_data,
             marker='o', color='b', linestyle='-', label="Temperatura"
         )
 
         # estende l'asse x se necessario
-        if self.numero_misurazioni > self.ax.get_xlim()[1]:
-            self.ax.set_xlim(1, self.numero_misurazioni + 1)
+        if self.numero_misurazioni > self.graph.get_xlim()[1]:
+            self.graph.set_xlim(1, self.numero_misurazioni + 1)
 
         # disegna il grafico
         self.canvas.draw()
@@ -467,9 +466,9 @@ class AcquisizioneDati(tk.Frame):
         print("Cancellazione dati...")
         
         # pulisce i dati nel grafico, mantenendo titolo e label
-        self.ax.clear()  # Cancella il contenuto del grafico
+        self.graph.clear()  # Cancella il contenuto del grafico
 
-        AcquisizioneDati.init_graph(self.ax)
+        self.init_graph()
 
         # ridisegna il grafico vuoto
         self.canvas.draw()
