@@ -496,7 +496,7 @@ class App(tk.Tk):
         if self.dati_tab.is_measuring:
             messagebox.showerror(
                 title="Disconnessione imprevista",
-                message = "Attenzione! Il dispositivo si è connesso e la misurazione è stata interrotta bruscamente!"
+                message = "Attenzione! Il dispositivo si è disconnesso e la misurazione è stata interrotta bruscamente!"
             )
             self.dati_tab.is_measuring = False
             
