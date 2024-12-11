@@ -284,7 +284,7 @@ class BLEClient:
     
     async def start_measurement_notify(self):
         # ad ogni notifica ricevuta sulla caratteristica con uuid MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
-        # viene eseguita la funzione notification_float_handler
+        # viene eseguita la funzione notification_text_handler
         await self.client.start_notify(
             BLEClient.MEASUREMENT_NOTIFICATION_CHARACTERISTIC_UUID,
             self.notification_text_handler
